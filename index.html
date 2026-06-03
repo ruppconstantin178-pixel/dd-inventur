@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#4F614F">
+<title>d&d Tagesinventur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g:      #4F614F;
+  --g-mid:  #6B856B;
+  --g-lt:   #B5D0AF;
+  --g-bg:   #EEF4ED;
+  --g-dark: #3A4A3A;
+  --coral:  #ED6954;
+  --c-lt:   #FDF0EE;
+  --white:  #FEFFFE;
+  --s50:    #F7F9F7;
+  --s100:   #EEF1EE;
+  --s200:   #D4DCD4;
+  --s400:   #96A896;
+  --text:   #1A261A;
+  --ok:     #2E7D32;
+  --ok-bg:  #E8F5E9;
+  --r:      12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);min-height:100dvh;padding-bottom:110px;-webkit-font-smoothing:antialiased}
+
+/* ── SETUP ── */
+#setup{position:fixed;inset:0;z-index:200;background:var(--g-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;transition:opacity .35s,transform .35s}
+#setup.hidden{opacity:0;transform:scale(1.04);pointer-events:none}
+.s-logo{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--g-lt);margin-bottom:8px}
+.s-title{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-align:center;margin-bottom:4px}
+.s-sub{color:rgba(255,255,255,.4);font-size:13px;text-align:center;margin-bottom:36px}
+.s-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:26px 22px;width:100%;max-width:360px}
+.s-lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g-lt);margin-bottom:7px}
+.s-inp{width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:13px 15px;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;color:var(--white);outline:none;transition:border-color .15s;margin-bottom:18px;-webkit-appearance:none}
+.s-inp:focus{border-color:var(--g-lt)}
+.s-inp::placeholder{color:rgba(255,255,255,.2)}
+.s-btn{width:100%;padding:15px;background:var(--coral);border:none;border-radius:11px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;color:white;cursor:pointer;transition:background .15s,transform .1s;margin-top:8px}
+.s-btn:active{background:#C94F3C;transform:scale(.98)}
+.s-err{color:var(--coral);font-size:12px;text-align:center;margin-top:10px;min-height:16px}
+
+/* ── HEADER ── */
+.hdr{background:var(--g);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.18)}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 9px}
+.hdr-l{display:flex;flex-direction:column;gap:1px}
+.hdr-brand{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--g-lt);opacity:.8}
+.hdr-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);letter-spacing:-.3px;line-height:1.1}
+.hdr-store{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px}
+.hdr-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.day-pill{background:var(--coral);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em}
+.sync-btn{background:rgba(255,255,255,.13);border:none;color:rgba(255,255,255,.8);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .12s}
+.sync-btn:active{background:rgba(255,255,255,.22)}
+.reset-btn{background:rgba(237,105,84,.25);border:none;color:rgba(255,255,255,.85);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;transition:background .12s;letter-spacing:.02em}
+.reset-btn:active{background:rgba(237,105,84,.45)}
+/* ── CONFIRM MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;transform:translateY(100%);transition:transform .25s cubic-bezier(.32,1,.28,1)}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal-icon{font-size:32px;text-align:center;margin-bottom:10px}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);text-align:center;margin-bottom:6px}
+.modal-msg{font-size:13px;color:var(--s400);text-align:center;line-height:1.6;margin-bottom:22px}
+.modal-msg strong{color:var(--text)}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mbtn{padding:14px;border:none;border-radius:11px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:background .12s,transform .1s}
+.mbtn:active{transform:scale(.97)}
+.mbtn.cancel{background:var(--s100);color:var(--text)}
+.mbtn.cancel:active{background:var(--s200)}
+.mbtn.confirm{background:var(--coral);color:white}
+.mbtn.confirm:active{background:#C94F3C}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--g-lt)}
+.sdot.spin{animation:pulse .8s infinite;background:var(--coral)}
+.sdot.ok{background:#7CCC7C}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.tabs{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:0 16px 11px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;background:rgba(255,255,255,.1);color:rgba(255,255,255,.55);border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;position:relative}
+.tab.active{background:var(--white);color:var(--g);font-weight:700;box-shadow:0 1px 6px rgba(0,0,0,.14)}
+.tab.filled::after{content:'';position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--coral)}
+.prog{height:3px;background:rgba(255,255,255,.1)}
+.prog-f{height:100%;background:var(--coral);transition:width .4s ease;border-radius:0 2px 2px 0}
+
+/* ── CATEGORY CARD ── */
+.cat-wrap{margin:10px 12px 0;border-radius:var(--r);overflow:hidden;box-shadow:0 2px 12px rgba(79,97,79,.09);background:var(--white);animation:up .28s ease both}
+.cat-wrap:nth-child(1){animation-delay:.04s}.cat-wrap:nth-child(2){animation-delay:.08s}
+.cat-wrap:nth-child(3){animation-delay:.12s}.cat-wrap:nth-child(4){animation-delay:.16s}
+.cat-wrap:nth-child(5){animation-delay:.20s}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.cat-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;border-bottom:1px solid var(--s100)}
+.cat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.cat-info{flex:1;min-width:0}
+.cat-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--g)}
+.cat-sub{font-size:10px;color:var(--s400);margin-top:1px}
+.cat-chev{color:var(--s400);font-size:19px;line-height:1;transition:transform .2s;flex-shrink:0}
+.cat-chev.open{transform:rotate(90deg)}
+
+/* Ausgang row */
+.aus-row{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--g-bg);border-bottom:1px solid rgba(79,97,79,.1)}
+.aus-lbl{flex:1;font-size:12px;font-weight:600;color:var(--g)}
+.stepper{display:flex;align-items:center;background:white;border-radius:8px;border:1.5px solid var(--g-lt);overflow:hidden}
+.stp-b{width:32px;height:32px;background:none;border:none;cursor:pointer;font-size:19px;line-height:1;color:var(--g);display:flex;align-items:center;justify-content:center;transition:background .1s;font-weight:300}
+.stp-b:active{background:var(--g-bg)}
+.stp-in{width:52px;text-align:center;border:none;font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:var(--g);background:transparent;outline:none;-moz-appearance:textfield}
+.stp-in::-webkit-outer-spin-button,.stp-in::-webkit-inner-spin-button{-webkit-appearance:none}
+.stp-u{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--g-mid);background:var(--g-bg);padding:3px 6px;border-left:1px solid var(--g-lt);align-self:stretch;display:flex;align-items:center}
+.cat-body{display:none}
+.cat-body.open{display:block}
+
+/* ── DISH ROW ── */
+.dishes{padding:6px 10px 0;display:flex;flex-direction:column;gap:6px}
+.dish{border-radius:9px;border:1.5px solid var(--s100);overflow:hidden;transition:border-color .15s}
+.dish:focus-within{border-color:var(--g-lt)}
+.dish-name-row{display:flex;align-items:center;gap:6px;padding:8px 10px 6px;border-bottom:1px solid var(--s100)}
+.dish-name{flex:1;font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
+.dish-kg{font-size:10px;font-family:'DM Mono',monospace;color:var(--s400);background:var(--s100);padding:2px 6px;border-radius:20px;flex-shrink:0;font-weight:500}
+.dish-grid{display:grid;gap:1px;background:var(--s100)}
+.dish-grid.no-du{grid-template-columns:2fr 3fr}
+.dish-grid.with-du{grid-template-columns:2fr 2fr 3fr}
+.dc{background:var(--white);padding:7px 6px 6px;display:flex;flex-direction:column;gap:2px;align-items:center}
+.dc.green{background:var(--g-bg)}
+.dc.coral{background:var(--c-lt)}
+.dc-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--s400);line-height:1}
+.dc-val{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1}
+.dc.coral .dc-val{color:var(--coral)}
+.dc-unit{font-size:9px;color:var(--s400);font-family:'DM Mono',monospace;line-height:1}
+.ds{display:flex;align-items:center;gap:1px;width:100%}
+.dsb{width:20px;height:20px;border:none;cursor:pointer;border-radius:4px;font-size:15px;font-weight:300;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .1s;background:rgba(79,97,79,.08);color:var(--g)}
+.dsb:active{background:var(--g-lt)}
+.dsi{flex:1;border:none;background:transparent;font-size:15px;font-weight:700;font-family:'DM Mono',monospace;color:var(--g);text-align:center;outline:none;-moz-appearance:textfield;min-width:0}
+.dsi::-webkit-outer-spin-button,.dsi::-webkit-inner-spin-button{-webkit-appearance:none}
+.dsi::placeholder{color:var(--s200);font-weight:400}
+
+/* ── CATEGORY SUMMARY (bottom of category) ── */
+.cat-summary{margin:8px 10px 10px;border-radius:9px;overflow:hidden;border:2px solid var(--s100)}
+
+/* Row 1: Verbraucht | Soll-Bestand | Übertrag */
+.cs-top{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:1px;background:var(--s100)}
+.cs{background:var(--white);padding:9px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.cs.dark{background:var(--g)}
+.cs-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--s400);line-height:1}
+.cs.dark .cs-lbl{color:var(--g-lt);opacity:.7}
+.cs-val{font-size:19px;font-weight:800;font-family:'Syne',sans-serif;color:var(--text);line-height:1.1}
+.cs.dark .cs-val{color:var(--white)}
+.cs-unit{font-size:9px;color:var(--s400);font-family:'DM Mono',monospace}
+.cs.dark .cs-unit{color:rgba(255,255,255,.45)}
+
+/* Zulieferung stepper inside summary */
+.zul-row{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--c-lt);border-top:1px solid rgba(237,105,84,.15)}
+.zul-lbl{flex:1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--coral)}
+.zul-stp{display:flex;align-items:center;background:white;border-radius:6px;border:1.5px solid rgba(237,105,84,.3)}
+.zul-b{width:28px;height:28px;background:none;border:none;font-size:15px;font-weight:300;color:var(--coral);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s}
+.zul-b:active{background:var(--c-lt)}
+.zul-in{width:44px;text-align:center;border:none;font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--coral);background:transparent;outline:none;-moz-appearance:textfield}
+.zul-in::-webkit-outer-spin-button,.zul-in::-webkit-inner-spin-button{-webkit-appearance:none}
+.zul-u{font-size:9px;font-weight:700;color:var(--coral);opacity:.6;padding-right:8px}
+
+/* Row 2: Ist-Bestand | Differenz */
+.cs-bot{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--s100);border-top:2px solid var(--s100)}
+.ci{background:var(--white);padding:9px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ci-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--s400);line-height:1}
+.ci-in{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--g);border:none;background:transparent;width:100%;text-align:center;outline:none;-moz-appearance:textfield}
+.ci-in::-webkit-outer-spin-button,.ci-in::-webkit-inner-spin-button{-webkit-appearance:none}
+.ci-in::placeholder{color:var(--s200);font-weight:400}
+.ci-unit{font-size:9px;color:var(--s400);font-family:'DM Mono',monospace}
+/* Diff states */
+.ci.diff-ok  {background:var(--ok-bg)}
+.ci.diff-ok  .ci-lbl{color:var(--ok)}
+.ci.diff-ok  .ci-val{color:var(--ok)}
+.ci.diff-bad {background:var(--coral)}
+.ci.diff-bad .ci-lbl{color:rgba(255,255,255,.75);opacity:1}
+.ci.diff-bad .ci-val{color:white}
+.ci.diff-bad .ci-unit{color:rgba(255,255,255,.55)}
+.ci.diff-none .ci-val{color:var(--s400)}
+
+/* ── BOTTOM BAR ── */
+.bar{position:fixed;bottom:0;left:0;right:0;background:var(--g-dark);z-index:99;padding:8px 10px max(10px,env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(0,0,0,.2)}
+.bar-title{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.bar-title span{color:var(--g-lt);opacity:.8;font-size:9px}
+.bar-cats{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.bc{border-radius:8px;padding:6px 3px 5px;text-align:center}
+.bc-em{font-size:13px;line-height:1;display:block}
+.bc-val{font-size:13px;font-weight:800;font-family:'Syne',sans-serif;line-height:1.2;display:block;margin-top:2px}
+.bc-lbl{font-size:7px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--g-lt);opacity:.55;display:block;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Bar tile states matching diff */
+.bc.b-ok  {background:rgba(46,125,50,.35)}
+.bc.b-ok  .bc-val{color:#A5D6A7}
+.bc.b-bad {background:rgba(237,105,84,.35)}
+.bc.b-bad .bc-val{color:#FFCDD2}
+.bc.b-none{background:rgba(255,255,255,.07)}
+.bc.b-none .bc-val{color:rgba(255,255,255,.4)}
+.bar-hint{font-size:8px;color:rgba(255,255,255,.18);text-align:center;margin-top:5px;letter-spacing:.04em}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--g-dark);color:white;border-radius:30px;padding:9px 18px;font-size:13px;font-weight:600;z-index:300;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:#2E6B2E}
+.toast.err{background:var(--coral)}
+
+/* ── CONFIG BANNER ── */
+.cfg-banner{background:#FFF3CD;border-bottom:2px solid #FFC107;padding:9px 14px;font-size:12px;color:#7D5A00;font-weight:500;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.cfg-banner strong{display:block;margin-bottom:1px}
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <div class="s-logo">dean &amp; david</div>
+  <div class="s-title">Tagesinventur</div>
+  <div class="s-sub">Store und Woche auswählen</div>
+  <div class="s-card">
+    <label class="s-lbl" for="iStore">Store</label>
+    <input class="s-inp" id="iStore" type="text" placeholder="z.B. Stuttgart Mitte" autocomplete="off" autocorrect="off">
+    <label class="s-lbl" for="iKw">Kalenderwoche</label>
+    <input class="s-inp" id="iKw" type="number" placeholder="z.B. 23" min="1" max="53" style="margin-bottom:0">
+    <button class="s-btn" onclick="startApp()">Starten →</button>
+    <div class="s-err" id="sErr"></div>
+  </div>
+</div>
+
+<div class="cfg-banner" id="cfgBanner" style="display:none">
+  <span>⚙️</span>
+  <div><strong>Google Sheets nicht verbunden</strong>Trage deine SCRIPT_URL in config.js ein.</div>
+</div>
+
+<header class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-l">
+      <span class="hdr-brand">dean &amp; david</span>
+      <span class="hdr-title">Tagesinventur</span>
+      <span class="hdr-store" id="hdrStore"></span>
+    </div>
+    <div class="hdr-r">
+      <span class="day-pill" id="dayPill">Tag 1</span>
+      <div style="display:flex;gap:5px;align-items:center">
+        <button class="reset-btn" onclick="resetDay()">↺ Tag Reset</button>
+        <button class="sync-btn" onclick="syncNow()">
+          <span class="sdot" id="sdot"></span>
+          <span id="slbl">Speichern</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="prog"><div class="prog-f" id="progF" style="width:0%"></div></div>
+</header>
+
+<main id="main"></main>
+
+<div class="bar">
+  <div class="bar-title">Abweichung heute <span id="barNext"></span></div>
+  <div class="bar-cats" id="barCats"></div>
+  <div class="bar-hint" id="barHint"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-icon">↺</div>
+    <div class="modal-title" id="modalTitle">Tag Reset</div>
+    <div class="modal-msg" id="modalMsg"></div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeModal()">Abbrechen</button>
+      <button class="mbtn confirm" onclick="confirmReset()">Zurücksetzen</button>
+    </div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script>
+const INV = {
+  Beef:{emoji:'🥩',color:'#FFF6EE',dishes:[
+    {n:'Big Easy Beef',kg:.08,du:true},
+    {n:'Japanese Beef Bowl',kg:.08,du:true},
+    {n:'Hot Grilled Beef Wrap',kg:.06}
+  ]},
+  Chicken:{emoji:'🍗',color:'#F0F6FF',dishes:[
+    {n:'Caesar Chicken',kg:.08,du:true},
+    {n:'Chicken Vitality',kg:.08,du:true},
+    {n:'Crunchy Chicken Bowl',kg:.08,du:true},
+    {n:'Avocado Chicken Bowl',kg:.08,du:true},
+    {n:'Chicken Teriyaki Bowl',kg:.08,du:true},
+    {n:'Avocado Chicken Sandwich',kg:.04},
+    {n:'Caesar Wrap',kg:.03},
+    {n:'Pesto Chicken',kg:.03},
+    {n:'Hot Chicken Teriyaki Wrap',kg:.025}
+  ]},
+  Lachs:{emoji:'🐟',color:'#FFF0EE',dishes:[
+    {n:'Salmon Spring',kg:.05,du:true},
+    {n:'California Poke Bowl',kg:.05,du:true},
+    {n:'Salmon Avocado Bowl',kg:.05,du:true},
+    {n:'Teriyaki Salmon Wrap',kg:.02}
+  ]},
+  'Ziegenkäse':{emoji:'🧀',color:'#FFFBEE',dishes:[
+    {n:'Paris Salat',kg:.06,du:true},
+    {n:'Paris Wrap',kg:.025,du:true}
+  ]},
+  Schafskäse:{emoji:'🫙',color:'#F5F0FF',dishes:[
+    {n:'Chicken Vitality',kg:.05,du:true},
+    {n:'Salmon Spring',kg:.05,du:true},
+    {n:'Olive Schafskäse Flatbread',kg:.02},
+    {n:'Hot Sweet Potatoe Wrap',kg:.03}
+  ]}
+};
+const DAYS  = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+const TOL   = 0.1; // ±100g
+
+let store='', kw='', day=0, data={}, dirty=false;
+
+// ── STORAGE HELPERS ─────────────────────────────────────────────────────────
+const sk  = (d,c,n) => `${d}|${c}|${n}`;
+const gD  = (d,c,n,f) => (data[sk(d,c,n)]||{})[f]||0;
+function sD(d,c,n,f,v){ const k=sk(d,c,n); if(!data[k])data[k]={}; data[k][f]=parseFloat(v)||0; dirty=true; persist(); recalc(); }
+const gA  = (d,c)   => parseFloat(localStorage.getItem(`A|${d}|${c}`))||0;
+function sA(d,c,v)  { localStorage.setItem(`A|${d}|${c}`,parseFloat(v)||0); dirty=true; recalc(); }
+const gZ  = (d,c)   => parseFloat(localStorage.getItem(`Z|${d}|${c}`))||0;  // Zulieferung per category
+function sZ(d,c,v)  { localStorage.setItem(`Z|${d}|${c}`,parseFloat(v)||0); dirty=true; recalc(); }
+const gI  = (d,c)   => parseFloat(localStorage.getItem(`I|${d}|${c}`))||0;  // Ist-Bestand per category
+function sI(d,c,v)  { localStorage.setItem(`I|${d}|${c}`,parseFloat(v)||0); dirty=true; recalc(); }
+
+function persist(){ localStorage.setItem('dd_d',JSON.stringify(data)); localStorage.setItem('dd_s',store); localStorage.setItem('dd_k',kw); }
+function hydrate(){ try{data=JSON.parse(localStorage.getItem('dd_d')||'{}')}catch{data={}} store=localStorage.getItem('dd_s')||''; kw=localStorage.getItem('dd_k')||''; }
+
+// ── SETUP ───────────────────────────────────────────────────────────────────
+function startApp(){
+  const s=document.getElementById('iStore').value.trim();
+  const k=document.getElementById('iKw').value.trim();
+  if(!s){document.getElementById('sErr').textContent='Bitte Store eintragen.';return}
+  if(!k){document.getElementById('sErr').textContent='Bitte KW eintragen.';return}
+  store=s; kw=k; persist();
+  document.getElementById('setup').classList.add('hidden');
+  boot();
+}
+function boot(){
+  document.getElementById('hdrStore').textContent=`${store} · KW ${kw}`;
+  buildTabs(); renderDay();
+  if(typeof SCRIPT_URL==='undefined'||!SCRIPT_URL) document.getElementById('cfgBanner').style.display='flex';
+}
+
+// ── TABS ────────────────────────────────────────────────────────────────────
+function buildTabs(){
+  const el=document.getElementById('tabs'); el.innerHTML='';
+  DAYS.forEach((d,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+(i===day?' active':'');
+    b.textContent=d;
+    if(Object.keys(data).some(k=>k.startsWith(i+'|')&&Object.values(data[k]).some(v=>v>0))) b.classList.add('filled');
+    b.onclick=()=>switchDay(i);
+    el.appendChild(b);
+  });
+}
+function switchDay(i){ day=i; document.getElementById('dayPill').textContent='Tag '+(i+1); buildTabs(); renderDay(); }
+
+// ── ID HELPER ───────────────────────────────────────────────────────────────
+const idf = s => s.replace(/[^a-zA-Z0-9]/g,'_');
+
+// ── RENDER ──────────────────────────────────────────────────────────────────
+function renderDay(){
+  const m=document.getElementById('main'); m.innerHTML='';
+  Object.entries(INV).forEach(([cat,cd])=>m.appendChild(buildCat(cat,cd)));
+  recalc();
+}
+
+function buildCat(cat,cd){
+  const wrap=document.createElement('div'); wrap.className='cat-wrap';
+  const isOpen=localStorage.getItem(`op_${cat}`)!=='false';
+  const ci=idf(cat);
+  const ausgang=gA(day,cat);
+  const zul=gZ(day,cat);
+  const ist=gI(day,cat);
+
+  wrap.innerHTML=`
+    <div class="cat-hdr" onclick="togCat('${cat}')">
+      <div class="cat-icon" style="background:${cd.color}">${cd.emoji}</div>
+      <div class="cat-info">
+        <div class="cat-name">${cat}</div>
+        <div class="cat-sub">${cd.dishes.length} Gerichte</div>
+      </div>
+      <span class="cat-chev ${isOpen?'open':''}" id="chev_${ci}">›</span>
+    </div>
+    <div class="aus-row">
+      <span class="aus-lbl">Ausgangsmenge</span>
+      <div class="stepper">
+        <button class="stp-b" onclick="bA('${cat}',-0.5)">−</button>
+        <input class="stp-in" id="a_${ci}" type="number" step="0.1" min="0"
+          value="${ausgang||''}" placeholder="0"
+          oninput="sA(${day},'${cat}',this.value)">
+        <button class="stp-b" onclick="bA('${cat}',0.5)">+</button>
+        <span class="stp-u">KG</span>
+      </div>
+    </div>
+    <div class="cat-body ${isOpen?'open':''}" id="body_${ci}">
+      <div class="dishes" id="dishes_${ci}"></div>
+      <div class="cat-summary">
+        <div class="cs-top">
+          <div class="cs">
+            <span class="cs-lbl">Verbraucht</span>
+            <span class="cs-val" id="cvb_${ci}">0.000</span>
+            <span class="cs-unit">kg</span>
+          </div>
+          <div class="cs dark">
+            <span class="cs-lbl">→ Soll-Bestand</span>
+            <span class="cs-val" id="crest_${ci}">—</span>
+            <span class="cs-unit">kg</span>
+          </div>
+          <div class="cs">
+            <span class="cs-lbl">Übertrag ${day<6?DAYS[day+1]:'—'}</span>
+            <span class="cs-val" id="cnext_${ci}" style="color:var(--g-mid)">—</span>
+            <span class="cs-unit">kg</span>
+          </div>
+        </div>
+        <div class="zul-row">
+          <span class="zul-lbl">⊕ Zulieferung</span>
+          <div class="zul-stp">
+            <button class="zul-b" onclick="bZ('${cat}',-0.5)">−</button>
+            <input class="zul-in" id="z_${ci}" type="number" step="0.1" min="0"
+              value="${zul||''}" placeholder="0"
+              oninput="sZ(${day},'${cat}',this.value)">
+            <span class="zul-u">KG</span>
+          </div>
+        </div>
+        <div class="cs-bot">
+          <div class="ci">
+            <span class="ci-lbl">Ist-Bestand</span>
+            <input class="ci-in" id="cist_${ci}" type="number" step="0.01" min="0"
+              value="${ist||''}" placeholder="0.00"
+              oninput="sI(${day},'${cat}',this.value)">
+            <span class="ci-unit">kg</span>
+          </div>
+          <div class="ci diff-none" id="cdiff_${ci}">
+            <span class="ci-lbl">Differenz</span>
+            <span class="ci-val" id="cdiffv_${ci}">—</span>
+            <span class="ci-unit" id="cdiffu_${ci}">kg</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  const dl=wrap.querySelector(`#dishes_${ci}`);
+  cd.dishes.forEach(d=>dl.appendChild(buildDish(cat,d)));
+  return wrap;
+}
+
+function buildDish(cat,dish){
+  const d=day, di=idf(dish.n);
+  const vk=gD(d,cat,dish.n,'vk');
+  const du=dish.du?gD(d,cat,dish.n,'du'):0;
+  const vb=(vk+(dish.du?du:0))*dish.kg;
+  const gridClass=dish.du?'with-du':'no-du';
+
+  const duCell=dish.du?`
+    <div class="dc green">
+      <span class="dc-lbl">Double Up</span>
+      <div class="ds">
+        <button class="dsb" onclick="bD('${cat}','${dish.n}','du',-1)">−</button>
+        <input class="dsi" id="du_${di}" type="number" min="0" value="${du||''}" placeholder="0"
+          oninput="sD(${d},'${cat}','${dish.n}','du',this.value)">
+        <button class="dsb" onclick="bD('${cat}','${dish.n}','du',1)">+</button>
+      </div>
+      <span class="dc-unit">Stk</span>
+    </div>`:'';
+
+  const el=document.createElement('div');
+  el.className='dish'; el.id=`dish_${idf(cat)}_${di}`;
+  el.innerHTML=`
+    <div class="dish-name-row">
+      <span class="dish-name">${dish.n}</span>
+      <span class="dish-kg">${dish.kg} kg</span>
+    </div>
+    <div class="dish-grid ${gridClass}">
+      <div class="dc green">
+        <span class="dc-lbl">Verkauft</span>
+        <div class="ds">
+          <button class="dsb" onclick="bD('${cat}','${dish.n}','vk',-1)">−</button>
+          <input class="dsi" id="vk_${di}" type="number" min="0" value="${vk||''}" placeholder="0"
+            oninput="sD(${d},'${cat}','${dish.n}','vk',this.value)">
+          <button class="dsb" onclick="bD('${cat}','${dish.n}','vk',1)">+</button>
+        </div>
+        <span class="dc-unit">Stk</span>
+      </div>
+      ${duCell}
+      <div class="dc coral">
+        <span class="dc-lbl">Verbraucht</span>
+        <span class="dc-val" id="vb_${di}">${vb.toFixed(3)}</span>
+        <span class="dc-unit">kg</span>
+      </div>
+    </div>`;
+  return el;
+}
+
+// ── BUMPERS ─────────────────────────────────────────────────────────────────
+function bA(cat,delta){ const v=Math.max(0,gA(day,cat)+delta); const el=document.getElementById(`a_${idf(cat)}`); if(el)el.value=v||''; sA(day,cat,v); }
+function bZ(cat,delta){ const v=Math.max(0,gZ(day,cat)+delta); const el=document.getElementById(`z_${idf(cat)}`); if(el)el.value=v||''; sZ(day,cat,v); }
+function bD(cat,name,field,delta){ const v=Math.max(0,gD(day,cat,name,field)+delta); const el=document.getElementById(`${field}_${idf(name)}`); if(el)el.value=v||''; sD(day,cat,name,field,v); }
+
+// ── TOGGLE ──────────────────────────────────────────────────────────────────
+function togCat(cat){ const b=document.getElementById(`body_${idf(cat)}`); const c=document.getElementById(`chev_${idf(cat)}`); const o=b.classList.toggle('open'); c.classList.toggle('open',o); localStorage.setItem(`op_${cat}`,o); }
+
+// ── RECALC ──────────────────────────────────────────────────────────────────
+function recalc(){
+  let filled=0, total=0;
+  const barCats=document.getElementById('barCats');
+  if(barCats) barCats.innerHTML='';
+
+  Object.entries(INV).forEach(([cat,cd])=>{
+    const ci   = idf(cat);
+    const ausgang = gA(day,cat);
+    const zul     = gZ(day,cat);
+    const ist     = gI(day,cat);
+    let catVb = 0;
+
+    cd.dishes.forEach(dish=>{
+      const vk = gD(day,cat,dish.n,'vk');
+      const du = dish.du ? gD(day,cat,dish.n,'du') : 0;
+      const vb = (vk+du)*dish.kg;
+      catVb += vb;
+      const vbEl = document.getElementById(`vb_${idf(dish.n)}`);
+      if(vbEl) vbEl.textContent = vb.toFixed(3);
+      if(vk>0||du>0) filled++;
+      total++;
+    });
+
+    const rest = ausgang - catVb + zul;
+    // Übertrag für nächsten Tag = rest + Zulieferung nächster Tag
+    // (Zulieferung nächster Tag ist noch 0 bis eingetragen, also zeigen wir nur rest)
+    const nextVal = ist;  // Folgetag-Ausgangsmenge = Ist-Bestand des Vortages
+
+    // Update category summary fields
+    const cvbEl   = document.getElementById(`cvb_${ci}`);
+    const crestEl = document.getElementById(`crest_${ci}`);
+    const cnextEl = document.getElementById(`cnext_${ci}`);
+    if(cvbEl)   cvbEl.textContent   = catVb.toFixed(3);
+    if(crestEl) crestEl.textContent = ausgang>0||catVb>0 ? rest.toFixed(3) : '—';
+    if(cnextEl){ const nv = ist>0 ? ist : (ausgang>0||catVb>0 ? rest : null); cnextEl.textContent = (day<6 && nv!==null) ? nv.toFixed(3) : '—'; }
+
+    // Differenz: Ist-Bestand − Soll-Bestand
+    const diffWrap = document.getElementById(`cdiff_${ci}`);
+    const diffValEl = document.getElementById(`cdiffv_${ci}`);
+    const diffUnit  = document.getElementById(`cdiffu_${ci}`);
+    let diffClass = 'ci diff-none';
+    let diffTxt   = '—';
+    if(diffWrap && diffValEl){
+      if(ist > 0){
+        const diff = ist - rest;
+        const abs  = Math.abs(diff);
+        diffTxt  = (diff>=0?'+':'')+diff.toFixed(3);
+        diffClass = abs <= TOL ? 'ci diff-ok' : 'ci diff-bad';
+      }
+      diffWrap.className = diffClass;
+      diffValEl.textContent = diffTxt;
+      if(diffUnit) diffUnit.textContent = ist>0 ? 'kg' : '';
+    }
+
+    // ── Auto-fill next day Ausgangsmenge = rest of today + zul of next day ──
+    // We store it only if the next day's Ausgang hasn't been manually set yet
+    if(day < 6){
+      const nextDay = day + 1;
+      const nextKey = `A|${nextDay}|${cat}`;
+      const existing = parseFloat(localStorage.getItem(nextKey));
+      // Overwrite if it was auto-set (i.e. matches what we'd compute), never overwrite manual entries
+      // We track auto-set values with a separate flag
+      const autoKey = `Aauto|${nextDay}|${cat}`;
+      const wasAuto = localStorage.getItem(autoKey) === '1';
+      if(!existing || wasAuto){
+        const nextZul = gZ(nextDay, cat); // any zulieferung already entered for next day
+        const nextAusgang = Math.max(0, ist>0 ? ist : rest) + nextZul;
+        localStorage.setItem(nextKey, nextAusgang.toFixed(3));
+        localStorage.setItem(autoKey, '1');
+      }
+    }
+
+    // ── Bottom bar tile ──────────────────────────────────────────────────────
+    if(barCats){
+      let bcClass='bc b-none', valTxt='—';
+      if(ist > 0){
+        const diff=ist-rest;
+        const abs=Math.abs(diff);
+        bcClass = abs<=TOL ? 'bc b-ok' : 'bc b-bad';
+        valTxt  = (diff>=0?'+':'')+diff.toFixed(2)+' kg';
+      }
+      const tile=document.createElement('div');
+      tile.className=bcClass;
+      tile.innerHTML=`
+        <span class="bc-em">${cd.emoji}</span>
+        <span class="bc-val">${valTxt}</span>
+        <span class="bc-lbl">${cat}</span>`;
+      barCats.appendChild(tile);
+    }
+  });
+
+  // Progress bar
+  const pct=total>0?Math.round((filled/total)*100):0;
+  document.getElementById('progF').style.width=pct+'%';
+
+  // Bar labels
+  const nextDay=day+1;
+  const bl=document.getElementById('barNext');
+  if(bl) bl.textContent=nextDay<7?`· Übertrag → ${DAYS[nextDay]}`:'· Wochenabschluss';
+  const bh=document.getElementById('barHint');
+  if(bh) bh.textContent=nextDay<7?`Ist-Bestand + Zulieferung ${DAYS[nextDay]} = Ausgangsmenge ${DAYS[nextDay]}`:'';
+}
+
+// ── RESET DAY ───────────────────────────────────────────────────────────────
+function resetDay(){
+  // Show custom modal (confirm() blocked in iOS PWA mode)
+  const msg = document.getElementById('modalMsg');
+  msg.innerHTML = `Alle Eingaben für <strong>${DAYS[day]}</strong> werden gelöscht:<br>Verkauft, Double Up, Zulieferung, Ist-Bestand.<br><br>Die <strong>Ausgangsmenge bleibt erhalten.</strong>`;
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modalBg').classList.remove('open');
+}
+function confirmReset(){
+  closeModal();
+  // Delete all dish-level entries (vk, du) for this day
+  Object.entries(INV).forEach(([cat,cd])=>{
+    cd.dishes.forEach(dish=>{
+      const k = sk(day,cat,dish.n);
+      delete data[k];
+    });
+    // Delete category-level: Zulieferung + Ist-Bestand (Ausgang stays)
+    localStorage.removeItem(`Z|${day}|${cat}`);
+    localStorage.removeItem(`I|${day}|${cat}`);
+    // Clear auto-fill flag so next day recalculates from scratch
+    if(day < 6) localStorage.removeItem(`Aauto|${day+1}|${cat}`);
+  });
+  dirty = true;
+  persist();
+  renderDay();
+  toast('↺ Tag zurückgesetzt', 'ok');
+}
+
+// ── SYNC ────────────────────────────────────────────────────────────────────
+let syncing=false;
+async function syncNow(){
+  if(syncing)return;
+  if(typeof SCRIPT_URL==='undefined'||!SCRIPT_URL){toast('⚠️ config.js einrichten','err');return}
+  syncing=true;
+  const dot=document.getElementById('sdot'); const lbl=document.getElementById('slbl');
+  dot.className='sdot spin'; lbl.textContent='Speichert…';
+  const rows=[]; const ts=new Date().toISOString();
+  DAYS.forEach((dayName,di)=>{
+    Object.entries(INV).forEach(([cat,cd])=>{
+      const ausgang=gA(di,cat); const zul=gZ(di,cat); const ist=gI(di,cat);
+      let catVb=0;
+      cd.dishes.forEach(dish=>{
+        const k=sk(di,cat,dish.n); const dd=data[k]||{};
+        const vk=dd.vk||0; const du=dish.du?(dd.du||0):0;
+        const vb=(vk+du)*dish.kg; catVb+=vb;
+        rows.push({ts,store,kw,tag:dayName,tagNr:di+1,kategorie:cat,gericht:dish.n,kg_stk:dish.kg,vk,du,vb:vb.toFixed(4)});
+      });
+      const rest=ausgang-catVb+zul;
+      rows.push({ts,store,kw,tag:dayName,tagNr:di+1,kategorie:cat,gericht:'_SUMMARY',ausgang,zul,verbraucht:catVb.toFixed(4),rest:rest.toFixed(4),ist,diff:ist?(ist-rest).toFixed(4):null});
+    });
+  });
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'upsert',store,kw,rows})});
+    dot.className='sdot ok'; lbl.textContent='Gespeichert'; dirty=false;
+    toast('✓ Gespeichert','ok');
+    setTimeout(()=>{dot.className='sdot';lbl.textContent='Speichern'},3000);
+  }catch{dot.className='sdot';lbl.textContent='Fehler';toast('Verbindungsfehler','err')}
+  syncing=false;
+}
+
+let tT;
+function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast ${type} show`;clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('show'),2800);}
+setInterval(()=>{if(dirty)syncNow()},60000);
+
+hydrate();
+if(store&&kw){document.getElementById('setup').classList.add('hidden');document.getElementById('iStore').value=store;document.getElementById('iKw').value=kw;boot();}
+else document.getElementById('setup').style.display='flex';
+</script>
+</body>
+</html>
