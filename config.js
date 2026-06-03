@@ -18,7 +18,7 @@
 //
 // 4. Füge die URL unten ein (zwischen den Anführungszeichen):
 //
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlMyqvuMQCf8q2ZHvDa0rytp2qbREX7cf4q1n_eGtZpGLU7xA6glpcevSD7xDdJCAjsA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbword9v2GR1NG0vnJShrVFBLO0sDpjxaI4dwCmFH5iHxvaMDYPUtSuNYQBISVUB-0WE6A/exec";
 //
 // Das war's. Die App sendet ab sofort automatisch alle Daten an dein Google Sheet.
 // ─────────────────────────────────────────────────────────────────────────────
