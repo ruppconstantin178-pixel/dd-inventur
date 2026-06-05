@@ -42,6 +42,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);mi
 .s-lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g-lt);margin-bottom:7px}
 .s-inp{width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:13px 15px;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;color:var(--white);outline:none;transition:border-color .15s;margin-bottom:18px;-webkit-appearance:none}
 .s-inp:focus{border-color:var(--g-lt)}
+.s-inp option{background:#3A4A3A;color:var(--white)}
+select.s-inp{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23B5D0AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 .s-inp::placeholder{color:rgba(255,255,255,.2)}
 .s-btn{width:100%;padding:15px;background:var(--coral);border:none;border-radius:11px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;color:white;cursor:pointer;transition:background .15s,transform .1s;margin-top:8px}
 .s-btn:active{background:#C94F3C;transform:scale(.98)}
@@ -250,7 +252,162 @@ body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);mi
   <div class="s-sub">Store und Woche auswählen</div>
   <div class="s-card">
     <label class="s-lbl" for="iStore">Store</label>
-    <input class="s-inp" id="iStore" type="text" placeholder="z.B. Stuttgart Mitte" autocomplete="off" autocorrect="off">
+    <select class="s-inp" id="iStore">
+      <option value="" disabled selected>Store auswählen …</option>
+      <option value="d&d Aachen Friedrich-Wilhelm-Platz">d&d Aachen Friedrich-Wilhelm-Platz</option>
+      <option value="d&d Aschaffenburg City Galerie">d&d Aschaffenburg City Galerie</option>
+      <option value="d&d Augsburg City Galerie">d&d Augsburg City Galerie</option>
+      <option value="d&d Augsburg Rathausplatz">d&d Augsburg Rathausplatz</option>
+      <option value="d&d Bad Kreuznach Kreuzstr.">d&d Bad Kreuznach Kreuzstr.</option>
+      <option value="d&d Basel Airport">d&d Basel Airport</option>
+      <option value="d&d Basel Centralbahnplatz">d&d Basel Centralbahnplatz</option>
+      <option value="d&d Berlin Bülowstraße">d&d Berlin Bülowstraße</option>
+      <option value="d&d Berlin Designer Outlet">d&d Berlin Designer Outlet</option>
+      <option value="d&d Berlin Europaplatz">d&d Berlin Europaplatz</option>
+      <option value="d&d Berlin Europaplatz Satellit">d&d Berlin Europaplatz Satellit</option>
+      <option value="d&d Berlin Friedrichstraße">d&d Berlin Friedrichstraße</option>
+      <option value="d&d Berlin Heidestraße">d&d Berlin Heidestraße</option>
+      <option value="d&d Berlin Kranzlereck">d&d Berlin Kranzlereck</option>
+      <option value="d&d Berlin Marienkirche">d&d Berlin Marienkirche</option>
+      <option value="d&d Berlin Mediaspree">d&d Berlin Mediaspree</option>
+      <option value="d&d Berlin Monbijouplatz">d&d Berlin Monbijouplatz</option>
+      <option value="d&d Berlin Potsdamer Platz">d&d Berlin Potsdamer Platz</option>
+      <option value="d&d Berlin Produktionsküche">d&d Berlin Produktionsküche</option>
+      <option value="d&d Berlin Quartier 205">d&d Berlin Quartier 205</option>
+      <option value="d&d Berlin Schloßstrasse">d&d Berlin Schloßstrasse</option>
+      <option value="d&d Berlin Schönhauser Allee">d&d Berlin Schönhauser Allee</option>
+      <option value="d&d Berlin Tauentzien">d&d Berlin Tauentzien</option>
+      <option value="d&d Bielefeld Jahnplatz">d&d Bielefeld Jahnplatz</option>
+      <option value="d&d Braunschweig Sack">d&d Braunschweig Sack</option>
+      <option value="d&d Bremen Airport Express">d&d Bremen Airport Express</option>
+      <option value="d&d Bremen Hauptbahnhof Express">d&d Bremen Hauptbahnhof Express</option>
+      <option value="d&d Bremen Stadtzentrum">d&d Bremen Stadtzentrum</option>
+      <option value="d&d Chemnitz Klosterstr.">d&d Chemnitz Klosterstr.</option>
+      <option value="d&d Dortmund Westenhellweg">d&d Dortmund Westenhellweg</option>
+      <option value="d&d Dresden Neustadt Express">d&d Dresden Neustadt Express</option>
+      <option value="d&d Dresden Wiener Platz">d&d Dresden Wiener Platz</option>
+      <option value="d&d Düsseldorf Airport Express">d&d Düsseldorf Airport Express</option>
+      <option value="d&d Düsseldorf Altstadt">d&d Düsseldorf Altstadt</option>
+      <option value="d&d Düsseldorf Hauptbahnhof">d&d Düsseldorf Hauptbahnhof</option>
+      <option value="d&d Erfurt Hauptbahnhof">d&d Erfurt Hauptbahnhof</option>
+      <option value="d&d Erlangen Campus">d&d Erlangen Campus</option>
+      <option value="d&d Essen Rüttenscheiderstr.">d&d Essen Rüttenscheiderstr.</option>
+      <option value="d&d Frankfurt Bockenheim">d&d Frankfurt Bockenheim</option>
+      <option value="d&d Frankfurt Eschborn">d&d Frankfurt Eschborn</option>
+      <option value="d&d Frankfurt Hauptbahnhof Express">d&d Frankfurt Hauptbahnhof Express</option>
+      <option value="d&d Frankfurt Mainzer Landstr.">d&d Frankfurt Mainzer Landstr.</option>
+      <option value="d&d Frankfurt MTZ">d&d Frankfurt MTZ</option>
+      <option value="d&d Frankfurt MyZeil">d&d Frankfurt MyZeil</option>
+      <option value="d&d Frankfurt Tower 185">d&d Frankfurt Tower 185</option>
+      <option value="d&d Frankfurt Welle">d&d Frankfurt Welle</option>
+      <option value="d&d Freiburg Hauptbahnhof">d&d Freiburg Hauptbahnhof</option>
+      <option value="d&d Freiburg Komturplatz">d&d Freiburg Komturplatz</option>
+      <option value="d&d Fürth Flair">d&d Fürth Flair</option>
+      <option value="d&d Garmisch Partenkirchen">d&d Garmisch Partenkirchen</option>
+      <option value="d&d Göttingen Hauptbahnhof Express">d&d Göttingen Hauptbahnhof Express</option>
+      <option value="d&d Göttingen Weenderstr.">d&d Göttingen Weenderstr.</option>
+      <option value="d&d Grafenwöhr Gründerzentrum">d&d Grafenwöhr Gründerzentrum</option>
+      <option value="d&d Graz Jakoministr.">d&d Graz Jakoministr.</option>
+      <option value="d&d Graz Murpark">d&d Graz Murpark</option>
+      <option value="d&d Graz Zinzendorfgasse">d&d Graz Zinzendorfgasse</option>
+      <option value="d&d Hamburg Altona Express">d&d Hamburg Altona Express</option>
+      <option value="d&d Hamburg Georgs-Platz">d&d Hamburg Georgs-Platz</option>
+      <option value="d&d Hamburg Georgs-Platz Produktionsküche">d&d Hamburg Georgs-Platz Produktionsküche</option>
+      <option value="d&d Hamburg Hafencity">d&d Hamburg Hafencity</option>
+      <option value="d&d Hamburg Hauptbahnhof Express">d&d Hamburg Hauptbahnhof Express</option>
+      <option value="d&d Hamburg Heegbarg">d&d Hamburg Heegbarg</option>
+      <option value="d&d Hamburg Jungfernstieg">d&d Hamburg Jungfernstieg</option>
+      <option value="d&d Hamburg Stadthöfe">d&d Hamburg Stadthöfe</option>
+      <option value="d&d Hanau Forum">d&d Hanau Forum</option>
+      <option value="d&d Hannover Hauptbahnhof Express">d&d Hannover Hauptbahnhof Express</option>
+      <option value="d&d Hannover Lister Meile">d&d Hannover Lister Meile</option>
+      <option value="d&d Hannover Osterstr.">d&d Hannover Osterstr.</option>
+      <option value="d&d Heidelberg Poststr.">d&d Heidelberg Poststr.</option>
+      <option value="d&d Heidelberg Produktionsküche">d&d Heidelberg Produktionsküche</option>
+      <option value="d&d Kaiserslautern Fackelstr.">d&d Kaiserslautern Fackelstr.</option>
+      <option value="d&d Karlsruhe Hauptbahnhof">d&d Karlsruhe Hauptbahnhof</option>
+      <option value="d&d Karlsruhe Rondellplatz">d&d Karlsruhe Rondellplatz</option>
+      <option value="d&d Kassel Willy-Brandt-Platz">d&d Kassel Willy-Brandt-Platz</option>
+      <option value="d&d Kiel Bootshafen">d&d Kiel Bootshafen</option>
+      <option value="d&d Koblenz Löhrstr.">d&d Koblenz Löhrstr.</option>
+      <option value="d&d Köln Hauptbahnhof">d&d Köln Hauptbahnhof</option>
+      <option value="d&d Leipzig Brühl">d&d Leipzig Brühl</option>
+      <option value="d&d Leipzig Dufourstr.">d&d Leipzig Dufourstr.</option>
+      <option value="d&d Leipzig Nikolaikirche">d&d Leipzig Nikolaikirche</option>
+      <option value="d&d Leipzig Willy-Brandt-Platz">d&d Leipzig Willy-Brandt-Platz</option>
+      <option value="d&d Linz Hauptplatz">d&d Linz Hauptplatz</option>
+      <option value="d&d Luxembourg Kirchberg">d&d Luxembourg Kirchberg</option>
+      <option value="d&d Magdeburg Ulrichplatz">d&d Magdeburg Ulrichplatz</option>
+      <option value="d&d Mainz Römerpassage">d&d Mainz Römerpassage</option>
+      <option value="d&d Mannheim Glückstein">d&d Mannheim Glückstein</option>
+      <option value="d&d Mannheim Hauptbahnhof">d&d Mannheim Hauptbahnhof</option>
+      <option value="d&d Montabaur Outlet">d&d Montabaur Outlet</option>
+      <option value="d&d München Airport Satellite">d&d München Airport Satellite</option>
+      <option value="d&d München Airport T1 Pier">d&d München Airport T1 Pier</option>
+      <option value="d&d München Airport T2">d&d München Airport T2</option>
+      <option value="d&d München Arnulfpark">d&d München Arnulfpark</option>
+      <option value="d&d München Bahnhofplatz">d&d München Bahnhofplatz</option>
+      <option value="d&d München Fünf Höfe">d&d München Fünf Höfe</option>
+      <option value="d&d München Hauptbahnhof Express">d&d München Hauptbahnhof Express</option>
+      <option value="d&d München Hbf Sperrengeschoß">d&d München Hbf Sperrengeschoß</option>
+      <option value="d&d München Hirschgarten">d&d München Hirschgarten</option>
+      <option value="d&d München Leopoldstr.">d&d München Leopoldstr.</option>
+      <option value="d&d München Marienplatz Express">d&d München Marienplatz Express</option>
+      <option value="d&d München Orleansplatz">d&d München Orleansplatz</option>
+      <option value="d&d München Parkstadt">d&d München Parkstadt</option>
+      <option value="d&d München Pasinger Bahnhof">d&d München Pasinger Bahnhof</option>
+      <option value="d&d München Produktionsküche">d&d München Produktionsküche</option>
+      <option value="d&d München Riem Willy-Brandt-Platz">d&d München Riem Willy-Brandt-Platz</option>
+      <option value="d&d München Rosenheimer Str.">d&d München Rosenheimer Str.</option>
+      <option value="d&d München Schellingstr.">d&d München Schellingstr.</option>
+      <option value="d&d München Stachus">d&d München Stachus</option>
+      <option value="d&d München Theresienhöhe">d&d München Theresienhöhe</option>
+      <option value="d&d München Werksviertel">d&d München Werksviertel</option>
+      <option value="d&d Münster Hötteweg">d&d Münster Hötteweg</option>
+      <option value="d&d Nürnberg Hauptbahnhof Express">d&d Nürnberg Hauptbahnhof Express</option>
+      <option value="d&d Nürnberg Hauptbahnhof Satellit">d&d Nürnberg Hauptbahnhof Satellit</option>
+      <option value="d&d Nürnberg Tullnaupark">d&d Nürnberg Tullnaupark</option>
+      <option value="d&d Oldenburg Lappan">d&d Oldenburg Lappan</option>
+      <option value="d&d Paderborn Detmolder Neu">d&d Paderborn Detmolder Neu</option>
+      <option value="d&d Pasching PlusCity">d&d Pasching PlusCity</option>
+      <option value="d&d Passau Stadtgalerie">d&d Passau Stadtgalerie</option>
+      <option value="d&d Pforzheim Leopoldplatz">d&d Pforzheim Leopoldplatz</option>
+      <option value="d&d Pforzheim Produktionsküche">d&d Pforzheim Produktionsküche</option>
+      <option value="d&d Potsdam Brandenburgerstr.">d&d Potsdam Brandenburgerstr.</option>
+      <option value="d&d Prag Celnice">d&d Prag Celnice</option>
+      <option value="d&d Prag Czerny Most">d&d Prag Czerny Most</option>
+      <option value="d&d Prag MÁJ">d&d Prag MÁJ</option>
+      <option value="d&d Regensburg Altstadt">d&d Regensburg Altstadt</option>
+      <option value="d&d Regensburg Arcaden">d&d Regensburg Arcaden</option>
+      <option value="d&d Regensburg DEZ">d&d Regensburg DEZ</option>
+      <option value="d&d Rostock Neuer Markt">d&d Rostock Neuer Markt</option>
+      <option value="d&d Saarbrücken Hbf">d&d Saarbrücken Hbf</option>
+      <option value="d&d Salzburg Makartplatz">d&d Salzburg Makartplatz</option>
+      <option value="d&d Schweinfurt Marktplatz">d&d Schweinfurt Marktplatz</option>
+      <option value="d&d Schwerin Schlosspark">d&d Schwerin Schlosspark</option>
+      <option value="d&d Seiersberg Shopping City">d&d Seiersberg Shopping City</option>
+      <option value="d&d Stuttgart Calwerstr.">d&d Stuttgart Calwerstr.</option>
+      <option value="d&d Stuttgart Hauptbahnhof Express">d&d Stuttgart Hauptbahnhof Express</option>
+      <option value="d&d Stuttgart Königsbau">d&d Stuttgart Königsbau</option>
+      <option value="d&d Trier Simeonstr.">d&d Trier Simeonstr.</option>
+      <option value="d&d Ulm Hafengasse">d&d Ulm Hafengasse</option>
+      <option value="d&d Vaterstetten Raststätte">d&d Vaterstetten Raststätte</option>
+      <option value="d&d Wels Messe">d&d Wels Messe</option>
+      <option value="d&d Wien Airport">d&d Wien Airport</option>
+      <option value="d&d Wien Airport Express">d&d Wien Airport Express</option>
+      <option value="d&d Wien Austria Campus">d&d Wien Austria Campus</option>
+      <option value="d&d Wien Burggasse">d&d Wien Burggasse</option>
+      <option value="d&d Wien Erste Campus">d&d Wien Erste Campus</option>
+      <option value="d&d Wien Euro Plaza">d&d Wien Euro Plaza</option>
+      <option value="d&d Wien Millennium City">d&d Wien Millennium City</option>
+      <option value="d&d Wiesbaden Langgasse">d&d Wiesbaden Langgasse</option>
+      <option value="d&d Wolfsburg City Galerie">d&d Wolfsburg City Galerie</option>
+      <option value="d&d Wolfsburg Designer Outlets">d&d Wolfsburg Designer Outlets</option>
+      <option value="d&d Würzburg Eichhornstr.">d&d Würzburg Eichhornstr.</option>
+      <option value="d&d Zug Baarerstr.">d&d Zug Baarerstr.</option>
+      <option value="d&d Zürich Bleicherweg">d&d Zürich Bleicherweg</option>
+      <option value="d&d Zweibrücken Londoner Bogen">d&d Zweibrücken Londoner Bogen</option>
+    </select>
     <label class="s-lbl" for="iKw">Kalenderwoche</label>
     <input class="s-inp" id="iKw" type="number" placeholder="z.B. 23" min="1" max="53" style="margin-bottom:0">
     <button class="s-btn" onclick="startApp()">Starten →</button>
@@ -267,7 +424,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);mi
   <div class="hdr-top">
     <div class="hdr-l">
       <span class="hdr-brand">dean &amp; david</span>
-      <span class="hdr-title">Tagesinventur</span>
+      <span class="hdr-title" onclick="goHome()" style="cursor:pointer" title="Zurück zur Startseite">Tagesinventur</span>
       <span class="hdr-store" id="hdrStore"></span>
     </div>
     <div class="hdr-r">
@@ -370,6 +527,7 @@ function startApp(){
   if(!s){document.getElementById('sErr').textContent='Bitte Store eintragen.';return}
   if(!k){document.getElementById('sErr').textContent='Bitte KW eintragen.';return}
   store=s; kw=k; persist();
+  sessionStorage.setItem('dd_active','1');
   document.getElementById('setup').classList.add('hidden');
   boot();
 }
@@ -676,6 +834,17 @@ function confirmReset(){
   toast('↺ Tag zurückgesetzt', 'ok');
 }
 
+// ── GO HOME ─────────────────────────────────────────────────────────────────
+function goHome(){
+  sessionStorage.removeItem('dd_active');
+  const setup = document.getElementById('setup');
+  setup.classList.remove('hidden');
+  setup.style.display='flex';
+  // Pre-fill current values
+  if(store) document.getElementById('iStore').value=store;
+  if(kw)    document.getElementById('iKw').value=kw;
+}
+
 // ── SYNC ────────────────────────────────────────────────────────────────────
 let syncing=false;
 async function syncNow(){
@@ -713,8 +882,18 @@ function toast(msg,type=''){const el=document.getElementById('toast');el.textCon
 setInterval(()=>{if(dirty)syncNow()},60000);
 
 hydrate();
-if(store&&kw){document.getElementById('setup').classList.add('hidden');document.getElementById('iStore').value=store;document.getElementById('iKw').value=kw;boot();}
-else document.getElementById('setup').style.display='flex';
+// Always show landing page on fresh load (sessionStorage flag)
+if(sessionStorage.getItem('dd_active')){
+  document.getElementById('setup').classList.add('hidden');
+  document.getElementById('iStore').value=store;
+  document.getElementById('iKw').value=kw;
+  boot();
+} else {
+  document.getElementById('setup').style.display='flex';
+  // Pre-fill last used values for convenience
+  if(store) document.getElementById('iStore').value=store;
+  if(kw)    document.getElementById('iKw').value=kw;
+}
 </script>
 </body>
 </html>
