@@ -479,36 +479,41 @@ select.s-inp{appearance:none;-webkit-appearance:none;background-image:url("data:
 <script>
 const INV = {
   Beef:{emoji:'🥩',color:'#FFF6EE',dishes:[
-    {n:'Big Easy Beef',kg:.08,du:true},
-    {n:'Japanese Beef Bowl',kg:.08,du:true},
-    {n:'Hot Grilled Beef Wrap',kg:.06}
+    {n:'Big Easy Beef',kg:.08},
+    {n:'Japanese Beef Bowl',kg:.08},
+    {n:'Hot Grilled Beef Wrap',kg:.06},
+    {n:'Double Up',kg:.08}
   ]},
   Chicken:{emoji:'🍗',color:'#F0F6FF',dishes:[
-    {n:'Caesar Chicken',kg:.08,du:true},
-    {n:'Chicken Vitality',kg:.08,du:true},
-    {n:'Crunchy Chicken Bowl',kg:.08,du:true},
-    {n:'Avocado Chicken Bowl',kg:.08,du:true},
-    {n:'Chicken Teriyaki Bowl',kg:.08,du:true},
+    {n:'Caesar Chicken',kg:.08},
+    {n:'Chicken Vitality',kg:.08},
+    {n:'Crunchy Chicken Bowl',kg:.08},
+    {n:'Avocado Chicken Bowl',kg:.08},
+    {n:'Chicken Teriyaki Bowl',kg:.08},
     {n:'Avocado Chicken Sandwich',kg:.04},
     {n:'Caesar Wrap',kg:.03},
     {n:'Pesto Chicken',kg:.03},
-    {n:'Hot Chicken Teriyaki Wrap',kg:.025}
+    {n:'Hot Chicken Teriyaki Wrap',kg:.025},
+    {n:'Double Up',kg:.08}
   ]},
   Lachs:{emoji:'🐟',color:'#FFF0EE',dishes:[
-    {n:'Salmon Spring',kg:.05,du:true},
-    {n:'California Poke Bowl',kg:.05,du:true},
-    {n:'Salmon Avocado Bowl',kg:.05,du:true},
-    {n:'Teriyaki Salmon Wrap',kg:.02}
+    {n:'Salmon Spring',kg:.05},
+    {n:'California Poke Bowl',kg:.05},
+    {n:'Salmon Avocado Bowl',kg:.05},
+    {n:'Teriyaki Salmon Wrap',kg:.02},
+    {n:'Double Up',kg:.08}
   ]},
   'Ziegenkäse':{emoji:'🧀',color:'#FFFBEE',dishes:[
-    {n:'Paris Salat',kg:.06,du:true},
-    {n:'Paris Wrap',kg:.025,du:true}
+    {n:'Paris Salat',kg:.06},
+    {n:'Paris Wrap',kg:.025},
+    {n:'Double Up',kg:.08}
   ]},
   Schafskäse:{emoji:'🫙',color:'#F5F0FF',dishes:[
-    {n:'Chicken Vitality',kg:.05,du:true},
-    {n:'Salmon Spring',kg:.05,du:true},
+    {n:'Chicken Vitality',kg:.05},
+    {n:'Salmon Spring',kg:.05},
     {n:'Olive Schafskäse Flatbread',kg:.02},
-    {n:'Hot Sweet Potatoe Wrap',kg:.03}
+    {n:'Hot Sweet Potatoe Wrap',kg:.03},
+    {n:'Double Up',kg:.08}
   ]},
   'Planted.Chicken':{emoji:'🌱',color:'#F0FFF0',simple:true,kg:.08,dishes:[]}
 };
@@ -524,6 +529,8 @@ function sD(d,c,n,f,v){ const k=sk(d,c,n); if(!data[k])data[k]={}; data[k][f]=pa
 const gA  = (d,c)   => parseFloat(localStorage.getItem(`A|${d}|${c}`))||0;
 function sA(d,c,v)  { const n=Math.round((parseFloat(v)||0)*10)/10; localStorage.setItem(`A|${d}|${c}`,n); dirty=true; recalc(); }
 const gZ  = (d,c)   => parseFloat(localStorage.getItem(`Z|${d}|${c}`))||0;  // Zulieferung per category
+const gDU = (d,c)   => parseFloat(localStorage.getItem(`DU|${d}|${c}`))||0; // Double Up per category (simple cats)
+function sDU(d,c,v) { localStorage.setItem(`DU|${d}|${c}`,parseFloat(v)||0); dirty=true; recalc(); }
 function sZ(d,c,v)  { localStorage.setItem(`Z|${d}|${c}`,parseFloat(v)||0); dirty=true; recalc(); }
 const gI  = (d,c)   => parseFloat(localStorage.getItem(`I|${d}|${c}`))||0;  // Ist-Bestand per category
 function sI(d,c,v)  { localStorage.setItem(`I|${d}|${c}`,parseFloat(v)||0); dirty=true; recalc(); }
@@ -630,6 +637,17 @@ function buildCat(cat,cd){
             <span class="zul-u">KG</span>
           </div>
         </div>
+        ${cd.simple ? `
+        <div class="zul-row" style="border-top:1px solid rgba(79,97,79,.12);background:var(--g-bg)">
+          <span class="zul-lbl" style="color:var(--g)">+ Double Up</span>
+          <div class="zul-stp" style="border-color:var(--g-lt)">
+            <button class="zul-b" style="color:var(--g)" onclick="bDU('${cat}',-0.1)">−</button>
+            <input class="zul-in" style="color:var(--g)" id="du_${ci}" type="number" step="0.1" min="0"
+              value="${gDU(day,cat)||''}" placeholder="0"
+              oninput="sDU(${day},'${cat}',this.value)">
+            <span class="zul-u" style="color:var(--g-mid)">KG</span>
+          </div>
+        </div>` : ''}
         <div class="cs-bot">
           <div class="ci ist-cell">
             <span class="ci-lbl">Ist-Bestand</span>
@@ -657,21 +675,9 @@ function buildCat(cat,cd){
 function buildDish(cat,dish){
   const d=day, di=idf(dish.n);
   const vk=gD(d,cat,dish.n,'vk');
-  const du=dish.du?gD(d,cat,dish.n,'du'):0;
-  const vb=(vk+(dish.du?du:0))*dish.kg;
-  const gridClass=dish.du?'with-du':'no-du';
-
-  const duCell=dish.du?`
-    <div class="dc green">
-      <span class="dc-lbl">Double Up</span>
-      <div class="ds">
-        <button class="dsb" onclick="bD('${cat}','${dish.n}','du',-1)">−</button>
-        <input class="dsi" id="du_${di}" type="number" min="0" value="${du||''}" placeholder="0"
-          oninput="sD(${d},'${cat}','${dish.n}','du',this.value)">
-        <button class="dsb" onclick="bD('${cat}','${dish.n}','du',1)">+</button>
-      </div>
-      <span class="dc-unit">Stk</span>
-    </div>`:'';
+  const vb=vk*dish.kg;
+  const gridClass='no-du';
+  const duCell='';
 
   const el=document.createElement('div');
   el.className='dish'; el.id=`dish_${idf(cat)}_${di}`;
@@ -704,6 +710,7 @@ function buildDish(cat,dish){
 // ── BUMPERS ─────────────────────────────────────────────────────────────────
 function bA(cat,delta){ const v=Math.round((Math.max(0,gA(day,cat)+delta))*10)/10; const el=document.getElementById(`a_${idf(cat)}`); if(el)el.value=v%1===0?v+'.0':v; sA(day,cat,v); }
 function bZ(cat,delta){ const v=Math.max(0,gZ(day,cat)+delta); const el=document.getElementById(`z_${idf(cat)}`); if(el)el.value=v||''; sZ(day,cat,v); }
+function bDU(cat,delta){ const v=Math.round((Math.max(0,gDU(day,cat)+delta))*10)/10; const el=document.getElementById(`du_${idf(cat)}`); if(el)el.value=v||''; sDU(day,cat,v); }
 function bD(cat,name,field,delta){ const v=Math.max(0,gD(day,cat,name,field)+delta); const el=document.getElementById(`${field}_${idf(name)}`); if(el)el.value=v||''; sD(day,cat,name,field,v); }
 
 // ── TOGGLE ──────────────────────────────────────────────────────────────────
@@ -724,17 +731,17 @@ function recalc(){
 
     cd.dishes.forEach(dish=>{
       const vk = gD(day,cat,dish.n,'vk');
-      const du = dish.du ? gD(day,cat,dish.n,'du') : 0;
-      const vb = (vk+du)*dish.kg;
+      const vb = vk*dish.kg;
       catVb += vb;
       const vbEl = document.getElementById(`vb_${idf(dish.n)}`);
       if(vbEl) vbEl.textContent = vb.toFixed(3);
-      if(vk>0||du>0) filled++;
+      if(vk>0) filled++;
       total++;
     });
 
     // For simple categories (no dishes), derive verbrauch from Ausgang − Ist
-    if(cd.simple && ist > 0) catVb = Math.max(0, ausgang + zul - ist);
+    const catDU = cd.simple ? gDU(day,cat) : 0;
+    if(cd.simple && ist > 0) catVb = Math.max(0, ausgang + zul + catDU - ist);
     const rest = ausgang - catVb + zul;
     // Übertrag für nächsten Tag = rest + Zulieferung nächster Tag
     // (Zulieferung nächster Tag ist noch 0 bis eingetragen, also zeigen wir nur rest)
@@ -819,7 +826,7 @@ function recalc(){
 function resetDay(){
   // Show custom modal (confirm() blocked in iOS PWA mode)
   const msg = document.getElementById('modalMsg');
-  msg.innerHTML = `Alle Eingaben für <strong>${DAYS[day]}</strong> werden gelöscht:<br>Verkauft, Double Up, Zulieferung, Ist-Bestand.<br><br>Die <strong>Ausgangsmenge bleibt erhalten.</strong>`;
+  msg.innerHTML = `Alle Eingaben für <strong>${DAYS[day]}</strong> werden gelöscht:<br>Verkauft, Zulieferung, Ist-Bestand.<br><br>Die <strong>Ausgangsmenge bleibt erhalten.</strong>`;
   document.getElementById('modalBg').classList.add('open');
 }
 function closeModal(){
@@ -835,6 +842,7 @@ function confirmReset(){
     });
     // Delete category-level: Zulieferung + Ist-Bestand (Ausgang stays)
     localStorage.removeItem(`Z|${day}|${cat}`);
+    localStorage.removeItem(`DU|${day}|${cat}`);
     localStorage.removeItem(`I|${day}|${cat}`);
     // Clear auto-fill flag so next day recalculates from scratch
     if(day < 6) localStorage.removeItem(`Aauto|${day+1}|${cat}`);
@@ -876,6 +884,8 @@ function exportData(){
       const i = localStorage.getItem(`I|${d}|${cat}`);
       if(a) bundle.ausgang[`${d}|${cat}`] = a;
       if(z) bundle.zul[`${d}|${cat}`]     = z;
+      const du = localStorage.getItem(`DU|${d}|${cat}`);
+      if(du) bundle.du = bundle.du||{}; if(du) bundle.du[`${d}|${cat}`] = du;
       if(i) bundle.ist[`${d}|${cat}`]     = i;
     });
   }
@@ -912,7 +922,10 @@ function importData(event){
       if(bundle.ausgang){
         Object.entries(bundle.ausgang).forEach(([k,v])=>localStorage.setItem(`A|${k}`,v));
       }
-      if(bundle.zul){
+      if(bundle.du){
+      Object.entries(bundle.du).forEach(([k,v])=>localStorage.setItem(`DU|${k}`,v));
+    }
+    if(bundle.zul){
         Object.entries(bundle.zul).forEach(([k,v])=>localStorage.setItem(`Z|${k}`,v));
       }
       if(bundle.ist){
@@ -1081,7 +1094,7 @@ function exportPDF(){
     let hasData = false;
     Object.entries(INV).forEach(([cat,cd])=>{
       if(gA(di,cat)>0) hasData=true;
-      cd.dishes.forEach(d=>{ if(gD(di,cat,d.n,'vk')>0||gD(di,cat,d.n,'du')>0) hasData=true; });
+      cd.dishes.forEach(d=>{ if(gD(di,cat,d.n,'vk')>0) hasData=true; });
     });
     if(!hasData) return;
 
@@ -1110,8 +1123,8 @@ function exportPDF(){
       y += 6;
 
       // Column headers
-      const CW = [80,25,22,22,25,25,25,PW-ML-MR-224];
-      const labels = ['Gericht','kg/Stk','Verkauft','Double Up','Verbraucht','Soll-Bstd','Ist-Bstd','Schwund'];
+      const CW = [80,25,25,25,25,25,PW-ML-MR-205];
+      const labels = ['Gericht','kg/Stk','Verkauft','Verbraucht','Soll-Bstd','Ist-Bstd','Schwund'];
       rect(ML, y, PW-ML-MR, 5.5, G_BG);
       let cx = ML;
       labels.forEach((lbl,i)=>{
@@ -1137,7 +1150,6 @@ function exportPDF(){
           dish.n.length>28 ? dish.n.slice(0,27)+'.' : dish.n,
           dish.kg+'kg',
           vk>0 ? vk.toString() : '—',
-          du>0  ? du.toString() : (dish.du?'—':''),
           vb>0  ? vb.toFixed(3)+'kg' : '—',
           '—', // soll per dish not tracked
           '—',
@@ -1163,7 +1175,7 @@ function exportPDF(){
 
       // Category summary row
       let catVb2 = 0;
-      cd.dishes.forEach(d=>{ catVb2 += (gD(di,cat,d.n,'vk')+(d.du?gD(di,cat,d.n,'du'):0))*d.kg; });
+      cd.dishes.forEach(d=>{ catVb2 += gD(di,cat,d.n,'vk')*d.kg; });
       const soll2 = ausgang - catVb2 + zul;
       const sch2  = ist>0 ? ist-soll2 : null;
       rect(ML, y, PW-ML-MR, 5.5, G_BG);
@@ -1180,6 +1192,155 @@ function exportPDF(){
       y += 5.5 + 3;
     });
   });
+
+  // ── Weekly summary page ──────────────────────────────────────────────────
+  doc.addPage();
+  y = MT;
+
+  // Header
+  rect(0, 0, PW, 14*mm, G_DARK);
+  bold(13); setTx(WHITE);
+  doc.text('Wochenzusammenfassung — Verlust & Schwund', ML, 9*mm);
+  normal(9); setTx([200,220,200]);
+  doc.text(`${store||'Store'}  ·  KW ${kw||'?'}`, PW-ML, 9*mm, {align:'right'});
+  y = 18*mm;
+
+  // Intro line
+  normal(8); setTx(MID);
+  doc.text('Schwund = Ist-Bestand − Soll-Bestand pro Tag. Grün = ≤ 100g, Rot = > 100g. Wochensumme = Gesamtschwund über alle 7 Tage.', ML, y);
+  y += 6*mm;
+
+  // Column setup: Cat label + 7 day cols + weekly total
+  const SW_CAT  = 28*mm;
+  const SW_DAY  = (PW - ML - MR - SW_CAT - 22*mm) / 7;
+  const SW_TOT  = 22*mm;
+  const SW_ROW  = 8*mm;
+  const SW_HDR  = 8*mm;
+
+  // Header row
+  rect(ML, y, SW_CAT, SW_HDR, G);
+  bold(8); setTx(WHITE);
+  doc.text('Kategorie', ML+2*mm, y+5.5*mm);
+
+  DAYS.forEach((d,i)=>{
+    const x = ML + SW_CAT + i*SW_DAY;
+    rect(x, y, SW_DAY, SW_HDR, i%2===0 ? G : G_DARK);
+    bold(9); setTx(WHITE);
+    doc.text(d, x+SW_DAY/2, y+5.5*mm, {align:'center'});
+  });
+  // Total header
+  rect(ML+SW_CAT+7*SW_DAY, y, SW_TOT, SW_HDR, CORAL);
+  bold(8); setTx(WHITE);
+  doc.text('Woche', ML+SW_CAT+7*SW_DAY+SW_TOT/2, y+5.5*mm, {align:'center'});
+  y += SW_HDR;
+
+  // Sub-header
+  rect(ML, y, SW_CAT, SW_ROW-1*mm, G_BG);
+  DAYS.forEach((d,i)=>{
+    const x = ML + SW_CAT + i*SW_DAY;
+    rect(x, y, SW_DAY, SW_ROW-1*mm, [245,249,245]);
+    normal(6); setTx(MID);
+    doc.text('Schwund kg', x+SW_DAY/2, y+3.5*mm, {align:'center'});
+  });
+  rect(ML+SW_CAT+7*SW_DAY, y, SW_TOT, SW_ROW-1*mm, [253,240,238]);
+  normal(6); setTx([180,60,40]);
+  doc.text('Gesamt kg', ML+SW_CAT+7*SW_DAY+SW_TOT/2, y+3.5*mm, {align:'center'});
+  y += SW_ROW - 1*mm;
+
+  // Data rows per category
+  let grandTotal = 0;
+  const dayTotals = Array(7).fill(0);
+
+  Object.entries(INV).forEach(([cat,cd], ri)=>{
+    const rowBg = ri%2===0 ? WHITE : GRAY;
+    rect(ML, y, SW_CAT, SW_ROW, G_BG);
+    bold(7.5); setTx(G_DARK);
+    const cn = cat.length>12 ? cat.slice(0,11)+'.' : cat;
+    doc.text(cn, ML+1.5*mm, y+5*mm);
+
+    let weekTotal = 0;
+
+    DAYS.forEach((d,di)=>{
+      const x       = ML + SW_CAT + di*SW_DAY;
+      const ausgang = gA(di,cat);
+      const zul     = gZ(di,cat);
+      const ist     = gI(di,cat);
+      const catDUv  = cd.simple ? gDU(di,cat) : 0;
+      let   catVbW  = 0;
+      cd.dishes.forEach(dish=>{ catVbW += gD(di,cat,dish.n,'vk')*dish.kg; });
+      if(cd.simple && ist>0) catVbW = Math.max(0, ausgang+zul+catDUv-ist);
+      const soll   = ausgang - catVbW + zul;
+      const schwund = ist>0 ? ist - soll : null;
+
+      rect(x, y, SW_DAY, SW_ROW, rowBg);
+
+      if(schwund !== null){
+        const absSch = Math.abs(schwund);
+        const cellBg = absSch<=0.1 ? OK_BG : BAD_BG;
+        const cellTx = absSch<=0.1 ? OK_TX : [180,60,40];
+        rect(x, y, SW_DAY, SW_ROW, cellBg);
+        bold(7.5); setTx(cellTx);
+        doc.text((schwund>=0?'+':'')+schwund.toFixed(3), x+SW_DAY/2, y+5*mm, {align:'center'});
+        weekTotal += schwund;
+        dayTotals[di] += schwund;
+      } else {
+        normal(7); setTx(MID);
+        doc.text('—', x+SW_DAY/2, y+5*mm, {align:'center'});
+      }
+
+      // thin divider
+      setDraw([220,230,220]); doc.setLineWidth(0.2);
+      doc.line(ML+SW_CAT, y+SW_ROW, ML+SW_CAT+7*SW_DAY+SW_TOT, y+SW_ROW);
+    });
+
+    grandTotal += weekTotal;
+
+    // Weekly total cell for this category
+    const absW  = Math.abs(weekTotal);
+    const totBg = weekTotal===0 ? [245,249,245] : (absW<=0.5 ? OK_BG : BAD_BG);
+    const totTx = weekTotal===0 ? MID : (absW<=0.5 ? OK_TX : [180,60,40]);
+    rect(ML+SW_CAT+7*SW_DAY, y, SW_TOT, SW_ROW, totBg);
+    bold(8); setTx(totTx);
+    doc.text(weekTotal!==0 ? (weekTotal>=0?'+':'')+weekTotal.toFixed(3)+'kg' : '—',
+      ML+SW_CAT+7*SW_DAY+SW_TOT/2, y+5*mm, {align:'center'});
+
+    y += SW_ROW;
+  });
+
+  // Day totals row
+  y += 1*mm;
+  rect(ML, y, SW_CAT, SW_ROW, G_DARK);
+  bold(8); setTx(WHITE);
+  doc.text('∑ Tag', ML+2*mm, y+5*mm);
+
+  dayTotals.forEach((dt,di)=>{
+    const x     = ML + SW_CAT + di*SW_DAY;
+    const absDT = Math.abs(dt);
+    const bg    = dt===0 ? G_DARK : (absDT<=0.3 ? [30,80,30] : [140,40,30]);
+    rect(x, y, SW_DAY, SW_ROW, bg);
+    bold(8); setTx(WHITE);
+    doc.text(dt!==0 ? (dt>=0?'+':'')+dt.toFixed(3) : '—', x+SW_DAY/2, y+5*mm, {align:'center'});
+  });
+
+  // Grand total
+  const gtBg = grandTotal===0 ? G_DARK : (Math.abs(grandTotal)<=1 ? [30,80,30] : [180,40,30]);
+  rect(ML+SW_CAT+7*SW_DAY, y, SW_TOT, SW_ROW, gtBg);
+  bold(9); setTx(WHITE);
+  doc.text((grandTotal>=0?'+':'')+grandTotal.toFixed(3)+'kg',
+    ML+SW_CAT+7*SW_DAY+SW_TOT/2, y+5*mm, {align:'center'});
+  y += SW_ROW + 4*mm;
+
+  // Legend
+  normal(7.5); setTx(MID);
+  doc.text('Farbcode: ', ML, y);
+  rect(ML+18*mm, y-3*mm, 8*mm, 5*mm, OK_BG);
+  setTx(OK_TX); doc.text('≤ 100g', ML+27*mm, y);
+  rect(ML+38*mm, y-3*mm, 8*mm, 5*mm, BAD_BG);
+  setTx([180,60,40]); doc.text('> 100g', ML+47*mm, y);
+  rect(ML+58*mm, y-3*mm, 8*mm, 5*mm, [30,80,30]);
+  setTx(WHITE); doc.text('∑ Woche ≤ 300g', ML+67*mm, y);
+  rect(ML+85*mm, y-3*mm, 8*mm, 5*mm, [180,40,30]);
+  setTx(WHITE); doc.text('∑ Woche > 300g', ML+94*mm, y);
 
   // ── Footer on every page ──────────────────────────────────────────────────
   const pageCount = doc.getNumberOfPages();
@@ -1212,7 +1373,7 @@ async function syncNow(){
       let catVb=0;
       cd.dishes.forEach(dish=>{
         const k=sk(di,cat,dish.n); const dd=data[k]||{};
-        const vk=dd.vk||0; const du=dish.du?(dd.du||0):0;
+        const vk=dd.vk||0; const du=0;
         const vb=(vk+du)*dish.kg; catVb+=vb;
         rows.push({ts,store,kw,tag:dayName,tagNr:di+1,kategorie:cat,gericht:dish.n,kg_stk:dish.kg,vk,du,vb:vb.toFixed(4)});
       });
