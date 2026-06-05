@@ -30,7 +30,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);min-height:100dvh;padding-bottom:110px;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);min-height:100dvh;padding-bottom:120px;-webkit-font-smoothing:antialiased}
 
 /* ── SETUP ── */
 #setup{position:fixed;inset:0;z-index:200;background:var(--g-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;transition:opacity .35s,transform .35s}
@@ -153,14 +153,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);mi
 .cs.dark .cs-unit{color:rgba(255,255,255,.45)}
 
 /* Zulieferung stepper inside summary */
-.zul-row{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--c-lt);border-top:1px solid rgba(237,105,84,.15)}
-.zul-lbl{flex:1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--coral)}
-.zul-stp{display:flex;align-items:center;background:white;border-radius:6px;border:1.5px solid rgba(237,105,84,.3)}
-.zul-b{width:28px;height:28px;background:none;border:none;font-size:15px;font-weight:300;color:var(--coral);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s}
-.zul-b:active{background:var(--c-lt)}
-.zul-in{width:44px;text-align:center;border:none;font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--coral);background:transparent;outline:none;-moz-appearance:textfield}
+.zul-row{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--g-bg);border-top:1px solid rgba(79,97,79,.12)}
+.zul-lbl{flex:1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--g)}
+.zul-stp{display:flex;align-items:center;background:white;border-radius:6px;border:1.5px solid var(--g-lt)}
+.zul-b{width:28px;height:28px;background:none;border:none;font-size:15px;font-weight:300;color:var(--g);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s}
+.zul-b:active{background:var(--g-bg)}
+.zul-in{width:44px;text-align:center;border:none;font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--g);background:transparent;outline:none;-moz-appearance:textfield}
 .zul-in::-webkit-outer-spin-button,.zul-in::-webkit-inner-spin-button{-webkit-appearance:none}
-.zul-u{font-size:9px;font-weight:700;color:var(--coral);opacity:.6;padding-right:8px}
+.zul-u{font-size:9px;font-weight:700;color:var(--g-mid);opacity:.8;padding-right:8px}
 
 /* Row 2: Ist-Bestand | Differenz */
 .cs-bot{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--s100);border-top:2px solid var(--s100)}
@@ -168,7 +168,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);mi
 .ci-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--s400);line-height:1}
 .ci-in{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--g);border:none;background:transparent;width:100%;text-align:center;outline:none;-moz-appearance:textfield}
 .ci-in::-webkit-outer-spin-button,.ci-in::-webkit-inner-spin-button{-webkit-appearance:none}
-.ci-in::placeholder{color:var(--s200);font-weight:400}
+.ci-in::placeholder{color:var(--s200);font-weight:400}.ci.ist-cell{background:var(--g)}.ci.ist-cell .ci-lbl{color:var(--g-lt);opacity:.7}.ci.ist-cell .ci-in{color:var(--white)}.ci.ist-cell .ci-in::placeholder{color:rgba(255,255,255,.25)}.ci.ist-cell .ci-unit{color:rgba(255,255,255,.45)}
 .ci-unit{font-size:9px;color:var(--s400);font-family:'DM Mono',monospace}
 /* Diff states */
 .ci.diff-ok  {background:var(--ok-bg)}
@@ -184,7 +184,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);mi
 .bar{position:fixed;bottom:0;left:0;right:0;background:var(--g-dark);z-index:99;padding:8px 10px max(10px,env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(0,0,0,.2)}
 .bar-title{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
 .bar-title span{color:var(--g-lt);opacity:.8;font-size:9px}
-.bar-cats{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.bar-cats{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
 .bc{border-radius:8px;padding:6px 3px 5px;text-align:center}
 .bc-em{font-size:13px;line-height:1;display:block}
 .bc-val{font-size:13px;font-weight:800;font-family:'Syne',sans-serif;line-height:1.2;display:block;margin-top:2px}
@@ -206,6 +206,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--s50);color:var(--text);mi
 
 /* ── CONFIG BANNER ── */
 .cfg-banner{background:#FFF3CD;border-bottom:2px solid #FFC107;padding:9px 14px;font-size:12px;color:#7D5A00;font-weight:500;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+
+/* ── MOBILE OVERRIDES ── */
+@media(max-width:390px){
+  .cat-wrap{margin:8px 8px 0}
+  .hdr-title{font-size:16px}
+  .hdr-store{font-size:10px}
+  .cat-name{font-size:14px}
+  .dish-name{font-size:12px}
+  .cs-val{font-size:16px}
+  .stp-in{width:44px;font-size:13px}
+  .step-num{font-size:11px}
+  .bc-val{font-size:11px}
+  .bc-em{font-size:11px}
+  .dc-val{font-size:14px}
+  .dsi{font-size:13px}
+  .dsb{width:18px;height:18px;font-size:13px}
+  .ci-in{font-size:16px}
+  .dishes{padding:5px 8px 0}
+  .cat-hdr{padding:10px 12px}
+  .aus-row{padding:8px 12px}
+  .dish-name-row{padding:7px 8px 5px}
+  .zul-row{padding:6px 8px}
+  .cs-top,.cs-bot{gap:1px}
+  .cat-summary{margin:6px 8px 8px}
+  .bar{padding:6px 8px max(8px,env(safe-area-inset-bottom))}
+  .bc{padding:5px 2px 4px;border-radius:7px}
+  .bar-title{font-size:7px;margin-bottom:5px}
+}
+@media(max-width:360px){
+  .dish-grid.with-du{grid-template-columns:1.8fr 1.8fr 2.8fr}
+  .dish-grid.no-du{grid-template-columns:1.8fr 3fr}
+  .bc-lbl{font-size:6px}
+}
 .cfg-banner strong{display:block;margin-bottom:1px}
 </style>
 </head>
@@ -308,7 +341,8 @@ const INV = {
     {n:'Salmon Spring',kg:.05,du:true},
     {n:'Olive Schafskäse Flatbread',kg:.02},
     {n:'Hot Sweet Potatoe Wrap',kg:.03}
-  ]}
+  ]},
+  'Planted.Chicken':{emoji:'🌱',color:'#F0FFF0',simple:true,kg:.08,dishes:[]}
 };
 const DAYS  = ['Mo','Di','Mi','Do','Fr','Sa','So'];
 const TOL   = 0.1; // ±100g
@@ -320,7 +354,7 @@ const sk  = (d,c,n) => `${d}|${c}|${n}`;
 const gD  = (d,c,n,f) => (data[sk(d,c,n)]||{})[f]||0;
 function sD(d,c,n,f,v){ const k=sk(d,c,n); if(!data[k])data[k]={}; data[k][f]=parseFloat(v)||0; dirty=true; persist(); recalc(); }
 const gA  = (d,c)   => parseFloat(localStorage.getItem(`A|${d}|${c}`))||0;
-function sA(d,c,v)  { localStorage.setItem(`A|${d}|${c}`,parseFloat(v)||0); dirty=true; recalc(); }
+function sA(d,c,v)  { const n=Math.round((parseFloat(v)||0)*10)/10; localStorage.setItem(`A|${d}|${c}`,n); dirty=true; recalc(); }
 const gZ  = (d,c)   => parseFloat(localStorage.getItem(`Z|${d}|${c}`))||0;  // Zulieferung per category
 function sZ(d,c,v)  { localStorage.setItem(`Z|${d}|${c}`,parseFloat(v)||0); dirty=true; recalc(); }
 const gI  = (d,c)   => parseFloat(localStorage.getItem(`I|${d}|${c}`))||0;  // Ist-Bestand per category
@@ -382,23 +416,23 @@ function buildCat(cat,cd){
       <div class="cat-icon" style="background:${cd.color}">${cd.emoji}</div>
       <div class="cat-info">
         <div class="cat-name">${cat}</div>
-        <div class="cat-sub">${cd.dishes.length} Gerichte</div>
+        <div class="cat-sub">${cd.simple ? '0,08 kg / Portion' : cd.dishes.length + ' Gerichte'}</div>
       </div>
       <span class="cat-chev ${isOpen?'open':''}" id="chev_${ci}">›</span>
     </div>
     <div class="aus-row">
       <span class="aus-lbl">Ausgangsmenge</span>
       <div class="stepper">
-        <button class="stp-b" onclick="bA('${cat}',-0.5)">−</button>
+        <button class="stp-b" onclick="bA('${cat}',-0.1)">−</button>
         <input class="stp-in" id="a_${ci}" type="number" step="0.1" min="0"
-          value="${ausgang||''}" placeholder="0"
+          value="${ausgang ? (ausgang%1===0 ? ausgang+'.0' : ausgang) : ''}" placeholder="0.0"
           oninput="sA(${day},'${cat}',this.value)">
-        <button class="stp-b" onclick="bA('${cat}',0.5)">+</button>
+        <button class="stp-b" onclick="bA('${cat}',0.1)">+</button>
         <span class="stp-u">KG</span>
       </div>
     </div>
     <div class="cat-body ${isOpen?'open':''}" id="body_${ci}">
-      <div class="dishes" id="dishes_${ci}"></div>
+      ${cd.simple ? '' : `<div class="dishes" id="dishes_${ci}"></div>`}
       <div class="cat-summary">
         <div class="cs-top">
           <div class="cs">
@@ -428,7 +462,7 @@ function buildCat(cat,cd){
           </div>
         </div>
         <div class="cs-bot">
-          <div class="ci">
+          <div class="ci ist-cell">
             <span class="ci-lbl">Ist-Bestand</span>
             <input class="ci-in" id="cist_${ci}" type="number" step="0.01" min="0"
               value="${ist||''}" placeholder="0.00"
@@ -444,8 +478,10 @@ function buildCat(cat,cd){
       </div>
     </div>`;
 
-  const dl=wrap.querySelector(`#dishes_${ci}`);
-  cd.dishes.forEach(d=>dl.appendChild(buildDish(cat,d)));
+  if(!cd.simple){
+    const dl=wrap.querySelector(`#dishes_${ci}`);
+    cd.dishes.forEach(d=>dl.appendChild(buildDish(cat,d)));
+  }
   return wrap;
 }
 
@@ -497,7 +533,7 @@ function buildDish(cat,dish){
 }
 
 // ── BUMPERS ─────────────────────────────────────────────────────────────────
-function bA(cat,delta){ const v=Math.max(0,gA(day,cat)+delta); const el=document.getElementById(`a_${idf(cat)}`); if(el)el.value=v||''; sA(day,cat,v); }
+function bA(cat,delta){ const v=Math.round((Math.max(0,gA(day,cat)+delta))*10)/10; const el=document.getElementById(`a_${idf(cat)}`); if(el)el.value=v%1===0?v+'.0':v; sA(day,cat,v); }
 function bZ(cat,delta){ const v=Math.max(0,gZ(day,cat)+delta); const el=document.getElementById(`z_${idf(cat)}`); if(el)el.value=v||''; sZ(day,cat,v); }
 function bD(cat,name,field,delta){ const v=Math.max(0,gD(day,cat,name,field)+delta); const el=document.getElementById(`${field}_${idf(name)}`); if(el)el.value=v||''; sD(day,cat,name,field,v); }
 
@@ -528,6 +564,8 @@ function recalc(){
       total++;
     });
 
+    // For simple categories (no dishes), derive verbrauch from Ausgang − Ist
+    if(cd.simple && ist > 0) catVb = Math.max(0, ausgang + zul - ist);
     const rest = ausgang - catVb + zul;
     // Übertrag für nächsten Tag = rest + Zulieferung nächster Tag
     // (Zulieferung nächster Tag ist noch 0 bis eingetragen, also zeigen wir nur rest)
