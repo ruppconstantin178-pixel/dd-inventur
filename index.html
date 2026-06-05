@@ -48,6 +48,11 @@ select.s-inp{appearance:none;-webkit-appearance:none;background-image:url("data:
 .s-btn{width:100%;padding:15px;background:var(--coral);border:none;border-radius:11px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;color:white;cursor:pointer;transition:background .15s,transform .1s;margin-top:8px}
 .s-btn:active{background:#C94F3C;transform:scale(.98)}
 .s-err{color:var(--coral);font-size:12px;text-align:center;margin-top:10px;min-height:16px}
+.s-divider{display:flex;align-items:center;gap:10px;margin:16px 0 4px}
+.s-divider-line{flex:1;height:1px;background:rgba(255,255,255,.12)}
+.s-divider-txt{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.s-imp-btn{width:100%;padding:13px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.18);border-radius:11px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;color:rgba(255,255,255,.75);cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.s-imp-btn:active{background:rgba(255,255,255,.15);transform:scale(.98)}
 
 /* ── HEADER ── */
 .hdr{background:var(--g);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.18)}
@@ -418,6 +423,15 @@ select.s-inp{appearance:none;-webkit-appearance:none;background-image:url("data:
     <input class="s-inp" id="iKw" type="number" placeholder="z.B. 23" min="1" max="53" style="margin-bottom:0">
     <button class="s-btn" onclick="startApp()">Starten →</button>
     <div class="s-err" id="sErr"></div>
+    <div class="s-divider">
+      <div class="s-divider-line"></div>
+      <span class="s-divider-txt">oder Vorwoche importieren</span>
+      <div class="s-divider-line"></div>
+    </div>
+    <button class="s-imp-btn" onclick="document.getElementById('setupFileImp').click()">
+      ⬆ Datei importieren
+    </button>
+    <input type="file" id="setupFileImp" accept=".json" style="display:none" onchange="setupImportData(event)">
   </div>
 </div>
 
@@ -903,6 +917,34 @@ function exportData(){
 }
 
 // ── IMPORT (restore from file) ───────────────────────────────────────────────
+function setupImportData(event){
+  // Import from landing page — closes setup screen after successful import
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const bundle = JSON.parse(e.target.result);
+      if(!bundle.version || !bundle.data){ toast('Ungültige Datei','err'); return; }
+      data  = bundle.data;
+      store = bundle.store || store;
+      kw    = bundle.kw    || kw;
+      if(bundle.ausgang) Object.entries(bundle.ausgang).forEach(([k,v])=>localStorage.setItem(`A|${k}`,v));
+      if(bundle.zul)     Object.entries(bundle.zul).forEach(([k,v])=>localStorage.setItem(`Z|${k}`,v));
+      if(bundle.ist)     Object.entries(bundle.ist).forEach(([k,v])=>localStorage.setItem(`I|${k}`,v));
+      if(bundle.du)      Object.entries(bundle.du).forEach(([k,v])=>localStorage.setItem(`DU|${k}`,v));
+      persist();
+      sessionStorage.setItem('dd_active','1');
+      document.getElementById('setup').classList.add('hidden');
+      document.getElementById('hdrStore').textContent=`${store} · KW ${kw}`;
+      buildTabs(); renderDay();
+      toast(`⬆ Importiert: ${store} KW ${kw}`,'ok');
+    } catch(err){ toast('Fehler beim Import','err'); }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
 function importData(event){
   const file = event.target.files[0];
   if(!file) return;
