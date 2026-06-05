@@ -63,6 +63,8 @@ select.s-inp{appearance:none;-webkit-appearance:none;background-image:url("data:
 .save-btn{background:rgba(181,208,175,.2);border:none;color:rgba(255,255,255,.85);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;transition:background .12s}
 .save-btn:active{background:rgba(181,208,175,.35)}
 .imp-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;transition:background .12s}
+.pdf-btn{background:rgba(237,105,84,.22);border:none;color:rgba(255,255,255,.9);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;transition:background .12s}
+.pdf-btn:active{background:rgba(237,105,84,.4)}
 .imp-btn:active{background:rgba(255,255,255,.15)}
 .reset-btn{background:rgba(237,105,84,.25);border:none;color:rgba(255,255,255,.85);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;transition:background .12s;letter-spacing:.02em}
 .reset-btn:active{background:rgba(237,105,84,.45)}
@@ -437,6 +439,7 @@ select.s-inp{appearance:none;-webkit-appearance:none;background-image:url("data:
         <button class="reset-btn" onclick="resetDay()">↺ Tag Reset</button>
         <button class="imp-btn" onclick="document.getElementById('fileImp').click()">⬆ Import</button>
         <button class="save-btn" onclick="exportData()">⬇ Speichern</button>
+        <button class="pdf-btn" onclick="exportPDF()">⬇ PDF</button>
         <button class="sync-btn" onclick="syncNow()">
           <span class="sdot" id="sdot"></span>
           <span id="slbl">Sheets</span>
@@ -471,6 +474,7 @@ select.s-inp{appearance:none;-webkit-appearance:none;background-image:url("data:
     </div>
   </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="config.js"></script>
 <script>
 const INV = {
@@ -927,6 +931,270 @@ function importData(event){
   reader.readAsText(file);
   // Reset input so same file can be re-imported if needed
   event.target.value = '';
+}
+
+// ── PDF EXPORT ───────────────────────────────────────────────────────────────
+function exportPDF(){
+  if(typeof window.jspdf === 'undefined'){
+    toast('PDF-Bibliothek lädt noch…','err'); return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+
+  const G_DARK  = [58, 74, 58];
+  const G       = [79, 97, 79];
+  const G_LT    = [181, 208, 175];
+  const G_BG    = [238, 244, 237];
+  const CORAL   = [237, 105, 84];
+  const WHITE   = [255, 255, 255];
+  const GRAY    = [245, 249, 245];
+  const MID     = [150, 168, 150];
+  const TEXT    = [26, 38, 26];
+  const OK_BG   = [232, 245, 233];
+  const OK_TX   = [46, 125, 50];
+  const DAYS    = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+
+  const PW = 297, PH = 210;
+  const ML = 10, MR = 10, MT = 10;
+  let y = MT;
+
+  function setFill(rgb){ doc.setFillColor(...rgb); }
+  function setTx(rgb)  { doc.setTextColor(...rgb); }
+  function setDraw(rgb){ doc.setDrawColor(...rgb); }
+  function bold(s=10)  { doc.setFont('helvetica','bold');   doc.setFontSize(s); }
+  function normal(s=9) { doc.setFont('helvetica','normal'); doc.setFontSize(s); }
+  function rect(x,yw,w,h,fill,stroke){
+    setFill(fill||WHITE);
+    if(stroke){ setDraw(stroke); doc.setLineWidth(0.2); doc.rect(x,yw,w,h,'FD'); }
+    else{ doc.rect(x,yw,w,h,'F'); }
+  }
+
+  // ── Header bar ────────────────────────────────────────────────────────────
+  rect(0, 0, PW, 16, G_DARK);
+  bold(14); setTx(WHITE);
+  doc.text('dean & david', ML, 10);
+  bold(11); setTx(G_LT);
+  doc.text('Tagesinventur', ML+38, 10);
+  normal(9); setTx([200,220,200]);
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  doc.text(`${store||'Store'}  ·  KW ${kw||'?'}  ·  Exportiert: ${dateStr}`, PW-ML, 10, {align:'right'});
+
+  y = 20;
+
+  // ── Column layout ──────────────────────────────────────────────────────────
+  // One column per weekday, rows per category
+  const COL_W   = (PW - ML - MR - 30) / 7;  // 7 day columns
+  const CAT_COL = 30;                          // category label column
+  const X0      = ML;
+  const ROW_H   = 7;
+  const HDR_H   = 8;
+
+  // Day header row
+  rect(X0, y, CAT_COL, HDR_H, G);
+  bold(8); setTx(WHITE);
+  doc.text('Kategorie', X0+2, y+5.5);
+
+  DAYS.forEach((d,i)=>{
+    const x = X0 + CAT_COL + i*COL_W;
+    rect(x, y, COL_W, HDR_H, i%2===0 ? G : G_DARK);
+    bold(9); setTx(WHITE);
+    doc.text(d, x + COL_W/2, y+5.5, {align:'center'});
+  });
+  y += HDR_H;
+
+  // Sub-header
+  rect(X0, y, CAT_COL, ROW_H-1, G_BG);
+  DAYS.forEach((d,i)=>{
+    const x = X0 + CAT_COL + i*COL_W;
+    rect(x, y, COL_W, ROW_H-1, [245,249,245]);
+    const subW = COL_W/4;
+    ['Ausg.','Verk.','Zulief.','Schwund'].forEach((lbl,j)=>{
+      normal(6); setTx(MID);
+      doc.text(lbl, x + j*subW + subW/2, y+4.5, {align:'center'});
+    });
+  });
+  y += ROW_H;
+
+  // ── Data rows per category ─────────────────────────────────────────────────
+  let rowIdx = 0;
+  Object.entries(INV).forEach(([cat, cd])=>{
+    const rowBg = rowIdx%2===0 ? WHITE : GRAY;
+    rowIdx++;
+
+    rect(X0, y, CAT_COL, ROW_H, G_BG);
+    bold(7.5); setTx(G_DARK);
+    // Truncate long names
+    const catName = cat.length > 12 ? cat.slice(0,11)+'.' : cat;
+    doc.text(catName, X0+1.5, y+5);
+
+    DAYS.forEach((d,di)=>{
+      const x     = X0 + CAT_COL + di*COL_W;
+      const subW  = COL_W/4;
+      rect(x, y, COL_W, ROW_H, rowBg);
+      // Thin dividers
+      setDraw([220,230,220]); doc.setLineWidth(0.1);
+      for(let j=1;j<4;j++) doc.line(x+j*subW, y, x+j*subW, y+ROW_H);
+      doc.line(X0+CAT_COL, y+ROW_H, X0+CAT_COL+(7*COL_W), y+ROW_H);
+
+      // Values
+      const ausgang  = gA(di,cat);
+      const zul      = gZ(di,cat);
+      const ist      = gI(di,cat);
+      let   catVb    = 0;
+      cd.dishes.forEach(dish=>{
+        const vk = gD(di,cat,dish.n,'vk');
+        const du = dish.du ? gD(di,cat,dish.n,'du') : 0;
+        catVb += (vk+du)*dish.kg;
+      });
+      if(cd.simple && ist>0) catVb = Math.max(0, ausgang+zul-ist);
+      const soll   = ausgang - catVb + zul;
+      const schwund = ist>0 ? ist-soll : null;
+
+      const vals = [
+        ausgang>0 ? ausgang.toFixed(1)+'kg' : '—',
+        catVb>0   ? catVb.toFixed(2)+'kg'   : '—',
+        zul>0     ? '+'+zul.toFixed(1)+'kg' : '—',
+        schwund!==null ? (schwund>=0?'+':'')+schwund.toFixed(2)+'kg' : '—'
+      ];
+
+      vals.forEach((v,j)=>{
+        // Color schwund cell
+        if(j===3 && schwund!==null){
+          const absSch = Math.abs(schwund);
+          const cellBg = absSch<=0.1 ? OK_BG : [253,240,238];
+          const cellTx = absSch<=0.1 ? OK_TX : [180,60,40];
+          rect(x+j*subW, y, subW, ROW_H, cellBg);
+          normal(6.5); setTx(cellTx);
+        } else {
+          normal(6.5); setTx(TEXT);
+        }
+        doc.text(v, x+j*subW+subW/2, y+5, {align:'center'});
+      });
+    });
+    y += ROW_H;
+  });
+
+  // ── Dish detail section — one page per day with data ─────────────────────
+  DAYS.forEach((dayName,di)=>{
+    // Check if this day has any data
+    let hasData = false;
+    Object.entries(INV).forEach(([cat,cd])=>{
+      if(gA(di,cat)>0) hasData=true;
+      cd.dishes.forEach(d=>{ if(gD(di,cat,d.n,'vk')>0||gD(di,cat,d.n,'du')>0) hasData=true; });
+    });
+    if(!hasData) return;
+
+    doc.addPage();
+    y = MT;
+
+    // Page header
+    rect(0, 0, PW, 14, G_DARK);
+    bold(13); setTx(WHITE);
+    doc.text(`${dayName} — Detailansicht`, ML, 9);
+    normal(9); setTx([200,220,200]);
+    doc.text(`${store||'Store'}  ·  KW ${kw||'?'}`, PW-ML, 9, {align:'right'});
+    y = 18;
+
+    // Per category detail table
+    Object.entries(INV).forEach(([cat,cd])=>{
+      if(cd.dishes.length===0) return; // skip simple cats in detail
+
+      // Category header
+      rect(ML, y, PW-ML-MR, 6, G);
+      bold(8); setTx(WHITE);
+      const ausgang = gA(di,cat);
+      const zul     = gZ(di,cat);
+      const ist     = gI(di,cat);
+      doc.text(`${cat}    Ausgang: ${ausgang>0?ausgang.toFixed(1)+'kg':'—'}    Zulieferung: ${zul>0?'+'+zul.toFixed(1)+'kg':'—'}    Ist-Bestand: ${ist>0?ist.toFixed(2)+'kg':'—'}`, ML+2, y+4.5);
+      y += 6;
+
+      // Column headers
+      const CW = [80,25,22,22,25,25,25,PW-ML-MR-224];
+      const labels = ['Gericht','kg/Stk','Verkauft','Double Up','Verbraucht','Soll-Bstd','Ist-Bstd','Schwund'];
+      rect(ML, y, PW-ML-MR, 5.5, G_BG);
+      let cx = ML;
+      labels.forEach((lbl,i)=>{
+        bold(7); setTx(G_DARK);
+        doc.text(lbl, cx+CW[i]/2, y+4, {align:'center'});
+        cx += CW[i];
+      });
+      y += 5.5;
+
+      // Dish rows
+      cd.dishes.forEach((dish,ri)=>{
+        const vk  = gD(di,cat,dish.n,'vk');
+        const du  = dish.du ? gD(di,cat,dish.n,'du') : 0;
+        const vb  = (vk+du)*dish.kg;
+        const zulDish = 0; // zulieferung is per category now
+        const soll_cat = ausgang - vb + zul;
+        const schwund = ist>0 ? ist - soll_cat : null;
+
+        const bg = ri%2===0 ? WHITE : GRAY;
+        rect(ML, y, PW-ML-MR, 5.5, bg);
+
+        const vals2 = [
+          dish.n.length>28 ? dish.n.slice(0,27)+'.' : dish.n,
+          dish.kg+'kg',
+          vk>0 ? vk.toString() : '—',
+          du>0  ? du.toString() : (dish.du?'—':''),
+          vb>0  ? vb.toFixed(3)+'kg' : '—',
+          '—', // soll per dish not tracked
+          '—',
+          '—'
+        ];
+
+        cx = ML;
+        vals2.forEach((v,i)=>{
+          normal(7); setTx(TEXT);
+          doc.text(v, cx + (i===0?2:CW[i]/2), y+4, {align: i===0?'left':'center'});
+          cx += CW[i];
+        });
+
+        // Vertical dividers
+        setDraw([230,235,230]); doc.setLineWidth(0.1);
+        cx = ML;
+        for(let i=0;i<CW.length-1;i++){ cx+=CW[i]; doc.line(cx,y,cx,y+5.5); }
+        doc.line(ML,y+5.5,PW-MR,y+5.5);
+
+        y += 5.5;
+        if(y > PH-15){ doc.addPage(); y=MT; }
+      });
+
+      // Category summary row
+      let catVb2 = 0;
+      cd.dishes.forEach(d=>{ catVb2 += (gD(di,cat,d.n,'vk')+(d.du?gD(di,cat,d.n,'du'):0))*d.kg; });
+      const soll2 = ausgang - catVb2 + zul;
+      const sch2  = ist>0 ? ist-soll2 : null;
+      rect(ML, y, PW-ML-MR, 5.5, G_BG);
+      bold(7.5); setTx(G_DARK);
+      doc.text(`Gesamt ${cat}`, ML+2, y+4);
+      normal(7.5); setTx(G_DARK);
+      doc.text(catVb2>0?catVb2.toFixed(3)+'kg':'—', ML+2+80+22+22+25/2, y+4, {align:'center'});
+      if(sch2!==null){
+        const absSch2 = Math.abs(sch2);
+        rect(ML+80+22+22+25+25+25, y, PW-ML-MR-80-22-22-25-25-25, 5.5, absSch2<=0.1?OK_BG:[253,240,238]);
+        setTx(absSch2<=0.1?OK_TX:[180,60,40]);
+        doc.text((sch2>=0?'+':'')+sch2.toFixed(3)+'kg', PW-ML-MR-((PW-ML-MR-224)/2), y+4, {align:'center'});
+      }
+      y += 5.5 + 3;
+    });
+  });
+
+  // ── Footer on every page ──────────────────────────────────────────────────
+  const pageCount = doc.getNumberOfPages();
+  for(let p=1; p<=pageCount; p++){
+    doc.setPage(p);
+    rect(0, PH-6, PW, 6, G_DARK);
+    normal(7); setTx([180,200,180]);
+    doc.text('dean & david Tagesinventur', ML, PH-2);
+    doc.text(`Seite ${p} von ${pageCount}`, PW-ML, PH-2, {align:'right'});
+  }
+
+  // ── Download ──────────────────────────────────────────────────────────────
+  const fname = `dd_inventur_${(store||'store').replace(/[^a-zA-Z0-9]/g,'-')}_KW${kw||'??'}.pdf`;
+  doc.save(fname);
+  toast('⬇ PDF wird heruntergeladen', 'ok');
 }
 
 // ── SYNC ────────────────────────────────────────────────────────────────────
